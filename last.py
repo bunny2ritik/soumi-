@@ -4,6 +4,25 @@ from textblob import TextBlob
 import base64
 from urllib.parse import urlparse, parse_qs
 
+# Function to decode complaint ID from URL query parameters
+def decode_complaint_id(url_query):
+    # Check if the URL query is empty
+    if not url_query:
+        st.error("URL query is empty. Please provide a valid URL with query parameters.")
+        return None
+
+    try:
+        # Decode the URL query from base64
+        decoded_query = base64.b64decode(url_query).decode('utf-8')
+        # Split the decoded query to get individual parameters
+        query_params = parse_qs(decoded_query)
+        # Get the value of 'complaint_id' parameter
+        complaint_id = query_params.get('complaint_id', [''])[0]
+        return complaint_id
+    except Exception as e:
+        st.error("Error decoding URL query: {}".format(e))
+        return None
+
 # Function to submit feedback and handle API request
 def submit_feedback(complaint_id, engineer_review, coordinator_review):
     # Perform sentiment analysis for engineer review
@@ -81,37 +100,36 @@ def save_feedback_to_api(complaint_id, engineer_review, engineer_rating, coordin
     else:
         st.error('Failed to submit feedback. Please try again later.')
 
-# Function to decode complaint ID from URL query parameters
-def decode_complaint_id():
-    # Get the current URL
-    current_url = st.query_params.get('current_url', '')
+# Function to style the feedback form
+def style_feedback_form(complaint_id):
+    # Add logo with increased size
+    logo_image = "https://github.com/bunny2ritik/Utl-feedback/blob/main/newlogo.png?raw=true"  # Path to your logo image
+    st.image(logo_image, use_column_width=True, width=400)
+    
+    # Display the title for the complaint ID without quotation marks
+    st.markdown(f"<h3 style='text-align: center;'>Feedback for Complaint ID : {complaint_id}</h3>", unsafe_allow_html=True)
 
-    # Check if the current URL is empty
-    if not current_url:
-        st.error("URL is empty. Please make sure to provide a valid URL with query parameters.")
-        return None
+    # Set title for service engineer section
+    st.header('Service Engineer ')
 
-    # Split the URL to get the query string
-    split_url = current_url.split("?")
+    # Add text area for engineer feedback
+    engineer_review = st.text_area('Write your feedback for the Service Engineer here:')
 
-    if len(split_url) == 2:
-        # Get the query string and decode it
-        query_string = split_url[1]
-        try:
-            decoded_query = base64.b64decode(query_string).decode('utf-8')
-            complaint_id = decoded_query.split('=')[1]
-            return complaint_id
-        except Exception as e:
-            st.error("Error decoding query string: {}".format(e))
-            return None
-    else:
-        st.error("Invalid URL format: Query parameters not found.")
-        return None
+    # Set title for service coordinator section
+    st.header('Service Executive Coordinator' )
+
+    # Add text area for coordinator feedback
+    coordinator_review = st.text_area('Write your feedback for the Service Executive Coordinator here:')
+
+    return engineer_review, coordinator_review
 
 # Main function
 def main():
+    # Get the URL query parameters
+    url_query = st.query_params.get('params', '')
+
     # Decode the complaint ID from URL query parameters
-    complaint_id_decoded = decode_complaint_id()
+    complaint_id_decoded = decode_complaint_id(url_query)
 
     if complaint_id_decoded is not None:
         st.write("Decoded Complaint ID:", complaint_id_decoded)
@@ -139,31 +157,9 @@ def main():
         if submit_button:
             submit_feedback(complaint_id_decoded, engineer_review, coordinator_review)
 
-# Function to style the feedback form
-def style_feedback_form(complaint_id):
-    # Add logo with increased size
-    logo_image = "https://github.com/bunny2ritik/Utl-feedback/blob/main/newlogo.png?raw=true"  # Path to your logo image
-    st.image(logo_image, use_column_width=True, width=400)
-    
-    # Display the title for the complaint ID without quotation marks
-    st.markdown(f"<h3 style='text-align: center;'>Feedback for Complaint ID : {complaint_id}</h3>", unsafe_allow_html=True)
-
-    # Set title for service engineer section
-    st.header('Service Engineer ')
-
-    # Add text area for engineer feedback
-    engineer_review = st.text_area('Write your feedback for the Service Engineer here:')
-
-    # Set title for service coordinator section
-    st.header('Service Executive Coordinator' )
-
-    # Add text area for coordinator feedback
-    coordinator_review = st.text_area('Write your feedback for the Service Executive Coordinator here:')
-
-    return engineer_review, coordinator_review
-
 # Run the main function
 if __name__ == "__main__":
     main()
+
 
 
