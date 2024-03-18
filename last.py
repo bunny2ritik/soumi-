@@ -85,11 +85,17 @@ def save_feedback_to_api(complaint_id, engineer_review, engineer_rating, coordin
         }
     }
 
+    # Print feedback data for debugging
+    print("Feedback Data:", feedback_data)
+
     # API endpoint
     api_url = 'https://staging.utlsolar.net/tracker/production/public/utlmtlapis/getCustomerFeedback'
 
     # Make a POST request to the API endpoint
     response = requests.post(api_url, json=feedback_data)
+
+    # Print response for debugging
+    print("API Response:", response.text)
 
     # Check if the request was successful
     if response.status_code == 200:
