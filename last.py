@@ -8,7 +8,7 @@ from urllib.parse import urlparse, parse_qs
 def decode_complaint_id(url_query):
     # Check if the URL query is empty
     if not url_query:
-        st.error("URL query is empty. Please provide a valid URL with query parameters.")
+        st.error("URL is empty. Please make sure to provide a valid URL with query parameters.")
         return None
 
     try:
@@ -160,6 +160,3 @@ def main():
 # Run the main function
 if __name__ == "__main__":
     main()
-
-
-
