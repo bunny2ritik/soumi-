@@ -6,12 +6,9 @@ def decode_complaint_id():
     # Get the current URL
     current_url = st.query_params.get('current_url', '')
 
-    # Print the current URL for debugging
-    print("Current URL:", current_url)
-
-    # Check if the current URL is empty or doesn't contain query parameters
+    # Check if the current URL is empty
     if not current_url:
-        st.error("Invalid URL format: URL is empty.")
+        st.error("URL is empty. Please make sure to provide a valid URL with query parameters.")
         return None
 
     # Split the URL to get the query string
@@ -22,7 +19,6 @@ def decode_complaint_id():
         query_string = split_url[1]
         try:
             decoded_query = base64.b64decode(query_string).decode('utf-8')
-            print("Decoded Query:", decoded_query)
             complaint_id = decoded_query.split('=')[1]
             return complaint_id
         except Exception as e:
@@ -45,3 +41,4 @@ def main():
 # Run the main function
 if __name__ == "__main__":
     main()
+
