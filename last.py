@@ -83,8 +83,17 @@ def save_feedback_to_api(complaint_id, engineer_review, engineer_rating, coordin
 # Get all query parameters from the URL
 query_params = st.query_params
 
+# Decode all base64 encoded query parameters
+decoded_params = {}
+for key, value in query_params.items():
+    try:
+        decoded_value = base64.b64decode(value[0]).decode('utf-8')
+        decoded_params[key] = decoded_value
+    except:
+        decoded_params[key] = value[0]
+
 # Extract the complaint ID from the query parameters
-complaint_id_encoded = query_params.get('complaint_id', '')
+complaint_id_encoded = decoded_params.get('complaint_id', '')
 
 # Decode the complaint ID from base64
 try:
@@ -140,3 +149,4 @@ if submit_button:
     # Submit feedback and handle API request
     if complaint_id_decoded:
         submit_feedback(complaint_id_decoded, engineer_review, coordinator_review)
+
