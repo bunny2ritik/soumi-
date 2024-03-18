@@ -1,9 +1,0 @@
- streamlit 
-st
-requests
-textblob  
-TextBlob
- base64
- urllib.parse  
-urlparse 
-parse_qs
