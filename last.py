@@ -92,6 +92,9 @@ def decode_complaint_id():
         # Get the query string and decode it
         decoded_url = base64.b64decode(split_url[1]).decode('utf-8')
 
+        # Print the decoded URL for debugging
+        print("Decoded URL:", decoded_url)
+
         # Split the decoded URL to get the complaint ID
         complaint_str = decoded_url.split("=")
 
