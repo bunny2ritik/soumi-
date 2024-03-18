@@ -6,6 +6,9 @@ def decode_complaint_id():
     # Get the current URL
     current_url = st.query_params.get('current_url', '')
 
+    # Print the current URL for debugging
+    print("Current URL:", current_url)
+
     # Split the URL to get the query string
     split_url = current_url.split("?")
 
@@ -14,6 +17,7 @@ def decode_complaint_id():
         query_string = split_url[1]
         try:
             decoded_query = base64.b64decode(query_string).decode('utf-8')
+            print("Decoded Query:", decoded_query)
             complaint_id = decoded_query.split('=')[1]
             return complaint_id
         except Exception as e:
@@ -36,7 +40,3 @@ def main():
 # Run the main function
 if __name__ == "__main__":
     main()
-
-
-
-
