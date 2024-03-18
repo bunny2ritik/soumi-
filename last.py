@@ -9,6 +9,11 @@ def decode_complaint_id():
     # Print the current URL for debugging
     print("Current URL:", current_url)
 
+    # Check if the current URL is empty or doesn't contain query parameters
+    if not current_url:
+        st.error("Invalid URL format: URL is empty.")
+        return None
+
     # Split the URL to get the query string
     split_url = current_url.split("?")
 
@@ -24,7 +29,7 @@ def decode_complaint_id():
             st.error("Error decoding query string: {}".format(e))
             return None
     else:
-        st.error("Invalid URL format. Query parameters not found.")
+        st.error("Invalid URL format: Query parameters not found.")
         return None
 
 # Main function
