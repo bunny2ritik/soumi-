@@ -2,19 +2,7 @@ import streamlit as st
 import requests
 from textblob import TextBlob
 import base64
-
-# Function to decode complaint ID from URL query parameters
-def decode_complaint_id():
-    # Read the complaint ID from URL query parameters
-    complaint_id_encoded = st.experimental_get_query_params().get('complaint_id', [''])[0]
-
-    # Decode the complaint ID from base64
-    try:
-        complaint_id_decoded = base64.b64decode(complaint_id_encoded).decode('utf-8')
-        return complaint_id_decoded
-    except Exception as e:
-        st.error("Error decoding complaint ID: {}".format(e))
-        st.stop()
+from urllib.parse import urlparse, parse_qs
 
 # Function to submit feedback and handle API request
 def submit_feedback(complaint_id, engineer_review, coordinator_review):
@@ -28,17 +16,13 @@ def submit_feedback(complaint_id, engineer_review, coordinator_review):
     engineer_rating = derive_rating(engineer_sentiment)
     coordinator_rating = derive_rating(coordinator_sentiment)
 
-    # Save the feedback to the API database and get the response payload
-    payload = save_feedback_to_api(complaint_id, engineer_review, engineer_rating, coordinator_review, coordinator_rating, engineer_sentiment, coordinator_sentiment)
+    # Save the feedback to the API database
+    save_feedback_to_api(complaint_id, engineer_review, engineer_rating, coordinator_review, coordinator_rating, engineer_sentiment, coordinator_sentiment)
     
     # Display sentiment analysis results
     st.header('Sentiment Analysis Results:')
     st.write('Service Engineer Review Sentiment:', engineer_sentiment)
     st.write('Service Executive Coordinator Review Sentiment:', coordinator_sentiment)
-
-    # Display the payload
-    st.subheader("API Response Payload:")
-    st.json(payload)
 
 # Function to perform sentiment analysis using TextBlob
 def perform_sentiment_analysis(review_text):
@@ -85,17 +69,11 @@ def save_feedback_to_api(complaint_id, engineer_review, engineer_rating, coordin
         }
     }
 
-    # Print feedback data for debugging
-    print("Feedback Data:", feedback_data)
-
     # API endpoint
     api_url = 'https://staging.utlsolar.net/tracker/production/public/utlmtlapis/getCustomerFeedback'
 
     # Make a POST request to the API endpoint
     response = requests.post(api_url, json=feedback_data)
-
-    # Print response for debugging
-    print("API Response:", response.text)
 
     # Check if the request was successful
     if response.status_code == 200:
@@ -103,8 +81,25 @@ def save_feedback_to_api(complaint_id, engineer_review, engineer_rating, coordin
     else:
         st.error('Failed to submit feedback. Please try again later.')
 
-    # Return the response payload
-    return response.json()
+# Function to decode complaint ID from URL query parameters
+def decode_complaint_id():
+    # Read the query parameters string from the URL
+    current_url = st.experimental_get_query_params().get('current_url', [''])[0]
+
+    # Parse the URL to extract query parameters
+    parsed_url = urlparse(current_url)
+    query_params = parse_qs(parsed_url.query)
+
+    # Get the complaint ID from the query parameters
+    complaint_id_encoded = query_params.get('complaint_id', [''])[0]
+
+    # Decode the complaint ID from base64
+    try:
+        complaint_id_decoded = base64.b64decode(complaint_id_encoded).decode('utf-8')
+        return complaint_id_decoded
+    except Exception as e:
+        st.error("Error decoding complaint ID: {}".format(e))
+        st.stop()
 
 # Style the feedback form
 def style_feedback_form(complaint_id):
@@ -162,3 +157,4 @@ def main():
 # Run the main function
 if __name__ == "__main__":
     main()
+
