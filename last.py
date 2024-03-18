@@ -2,7 +2,6 @@ import streamlit as st
 import requests
 from textblob import TextBlob
 import base64
-from urllib.parse import urlparse, parse_qs
 
 # Function to submit feedback and handle API request
 def submit_feedback(complaint_id, engineer_review, coordinator_review):
@@ -83,78 +82,36 @@ def save_feedback_to_api(complaint_id, engineer_review, engineer_rating, coordin
 
 # Function to decode complaint ID from URL query parameters
 def decode_complaint_id():
-    # Read the query parameters string from the URL
+    # Get the current URL
     current_url = st.experimental_get_query_params().get('current_url', [''])[0]
 
-    # Parse the URL to extract query parameters
-    parsed_url = urlparse(current_url)
-    query_params = parse_qs(parsed_url.query)
+    # Split the URL to get the query string
+    split_url = current_url.split("?")
 
-    # Get the complaint ID from the query parameters
-    complaint_id_encoded = query_params.get('complaint_id', [''])[0]
+    if len(split_url) == 2:
+        # Get the query string and decode it
+        decoded_url = base64.b64decode(split_url[1]).decode('utf-8')
 
-    # Decode the complaint ID from base64
-    try:
-        complaint_id_decoded = base64.b64decode(complaint_id_encoded).decode('utf-8')
-        return complaint_id_decoded
-    except Exception as e:
-        st.error("Error decoding complaint ID: {}".format(e))
-        st.stop()
+        # Split the decoded URL to get the complaint ID
+        complaint_str = decoded_url.split("=")
 
-# Style the feedback form
-def style_feedback_form(complaint_id):
-    # Add logo with increased size
-    logo_image = "https://github.com/bunny2ritik/Utl-feedback/blob/main/newlogo.png?raw=true"  # Path to your logo image
-    st.image(logo_image, use_column_width=True, width=400)
-    
-    # Display the title for the complaint ID without quotation marks
-    st.markdown(f"<h3 style='text-align: center;'>Feedback for Complaint ID : {complaint_id}</h3>", unsafe_allow_html=True)
+        if len(complaint_str) == 2:
+            complaint_id = complaint_str[1]
+            return complaint_id
 
-    # Set title for service engineer section
-    st.header('Service Engineer ')
-
-    # Add text area for engineer feedback
-    engineer_review = st.text_area('Write your feedback for the Service Engineer here:')
-
-    # Set title for service coordinator section
-    st.header('Service Executive Coordinator' )
-
-    # Add text area for coordinator feedback
-    coordinator_review = st.text_area('Write your feedback for the Service Executive Coordinator here:')
-
-    return engineer_review, coordinator_review
+    # Return None if decoding fails or complaint ID not found
+    return None
 
 # Main function
 def main():
     # Decode the complaint ID from URL query parameters
     complaint_id_decoded = decode_complaint_id()
 
-    # Style the feedback form
-    engineer_review, coordinator_review = style_feedback_form(complaint_id_decoded)
-
-    # Add a submit button with custom style
-    submit_button_style = """
-        <style>
-            div.stButton > button:first-child {
-                background-color: #4CAF50; /* Green */
-                color: white;
-            }
-        </style>
-    """
-
-    # Inject the submit button style into the Streamlit app
-    st.markdown(submit_button_style, unsafe_allow_html=True)
-
-    # Add a submit button
-    submit_button = st.button('Submit')
-
-    # Submit feedback and handle API request
-    if submit_button:
-        # Submit feedback and handle API request
-        if complaint_id_decoded:
-            submit_feedback(complaint_id_decoded, engineer_review, coordinator_review)
+    if complaint_id_decoded is not None:
+        st.write("Decoded Complaint ID:", complaint_id_decoded)
+    else:
+        st.error("Error decoding complaint ID or complaint ID not found.")
 
 # Run the main function
 if __name__ == "__main__":
     main()
-
