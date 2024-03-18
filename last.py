@@ -83,7 +83,7 @@ def save_feedback_to_api(complaint_id, engineer_review, engineer_rating, coordin
 # Function to decode complaint ID from URL query parameters
 def decode_complaint_id():
     # Get the current URL
-    current_url = st.experimental_get_query_params().get('current_url', [''])[0]
+    current_url = st.query_params.get('current_url', '')
 
     # Split the URL to get the query string
     split_url = current_url.split("?")
@@ -91,9 +91,6 @@ def decode_complaint_id():
     if len(split_url) == 2:
         # Get the query string and decode it
         decoded_url = base64.b64decode(split_url[1]).decode('utf-8')
-
-        # Print the decoded URL for debugging
-        print("Decoded URL:", decoded_url)
 
         # Split the decoded URL to get the complaint ID
         complaint_str = decoded_url.split("=")
@@ -118,4 +115,5 @@ def main():
 # Run the main function
 if __name__ == "__main__":
     main()
+
 
