@@ -4,25 +4,6 @@ from textblob import TextBlob
 import base64
 from urllib.parse import urlparse, parse_qs
 
-# Function to decode complaint ID from URL query parameters
-def decode_complaint_id(url_query):
-    # Check if the URL query is empty
-    if not url_query:
-        st.error("URL is empty. Please make sure to provide a valid URL with query parameters.")
-        return None
-
-    try:
-        # Decode the URL query from base64
-        decoded_query = base64.b64decode(url_query).decode('utf-8')
-        # Split the decoded query to get individual parameters
-        query_params = parse_qs(decoded_query)
-        # Get the value of 'complaint_id' parameter
-        complaint_id = query_params.get('complaint_id', [''])[0]
-        return complaint_id
-    except Exception as e:
-        st.error("Error decoding URL query: {}".format(e))
-        return None
-
 # Function to submit feedback and handle API request
 def submit_feedback(complaint_id, engineer_review, coordinator_review):
     # Perform sentiment analysis for engineer review
@@ -100,7 +81,24 @@ def save_feedback_to_api(complaint_id, engineer_review, engineer_rating, coordin
     else:
         st.error('Failed to submit feedback. Please try again later.')
 
-# Function to style the feedback form
+# Get the current URL
+current_url = st.experimental_get_query_params().get('current_url', [''])[0]
+
+# Parse the URL to extract query parameters
+parsed_url = urlparse(current_url)
+query_params = parse_qs(parsed_url.query)
+
+# Get the complaint ID from the query parameters
+complaint_id_encoded = query_params.get('complaint_id', [''])[0]
+
+# Decode the complaint ID from base64
+try:
+    complaint_id_decoded = base64.b64decode(complaint_id_encoded).decode('utf-8')
+except Exception as e:
+    st.error("Error decoding complaint ID: {}".format(e))
+    st.stop()
+
+# Style the feedback form
 def style_feedback_form(complaint_id):
     # Add logo with increased size
     logo_image = "https://github.com/bunny2ritik/Utl-feedback/blob/main/newlogo.png?raw=true"  # Path to your logo image
@@ -123,40 +121,28 @@ def style_feedback_form(complaint_id):
 
     return engineer_review, coordinator_review
 
-# Main function
-def main():
-    # Get the URL query parameters
-    url_query = st.query_params.get('params', '')
+# Style the feedback form
+engineer_review, coordinator_review = style_feedback_form(complaint_id_decoded)
 
-    # Decode the complaint ID from URL query parameters
-    complaint_id_decoded = decode_complaint_id(url_query)
+# Add a submit button with custom style
+submit_button_style = """
+    <style>
+        div.stButton > button:first-child {
+            background-color: #4CAF50; /* Green */
+            color: white;
+        }
+    </style>
+"""
 
-    if complaint_id_decoded is not None:
-        st.write("Decoded Complaint ID:", complaint_id_decoded)
+# Inject the submit button style into the Streamlit app
+st.markdown(submit_button_style, unsafe_allow_html=True)
 
-        # Style the feedback form
-        engineer_review, coordinator_review = style_feedback_form(complaint_id_decoded)
+# Add a submit button
+submit_button = st.button('Submit')
 
-        # Add a submit button with custom style
-        submit_button_style = """
-            <style>
-                div.stButton > button:first-child {
-                    background-color: #4CAF50; /* Green */
-                    color: white;
-                }
-            </style>
-        """
+# Submit feedback and handle API request
+if submit_button:
+    # Submit feedback and handle API request
+    if complaint_id_decoded:
+        submit_feedback(complaint_id_decoded, engineer_review, coordinator_review)
 
-        # Inject the submit button style into the Streamlit app
-        st.markdown(submit_button_style, unsafe_allow_html=True)
-
-        # Add a submit button
-        submit_button = st.button('Submit')
-
-        # Submit feedback and handle API request
-        if submit_button:
-            submit_feedback(complaint_id_decoded, engineer_review, coordinator_review)
-
-# Run the main function
-if __name__ == "__main__":
-    main()
