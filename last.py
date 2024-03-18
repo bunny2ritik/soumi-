@@ -87,13 +87,16 @@ def decode_complaint_id():
 
     # Split the URL to get the query string
     split_url = current_url.split("?")
+    print("Split URL:", split_url)
 
     if len(split_url) == 2:
         # Get the query string and decode it
         decoded_url = base64.b64decode(split_url[1]).decode('utf-8')
+        print("Decoded URL:", decoded_url)
 
         # Split the decoded URL to get the complaint ID
         complaint_str = decoded_url.split("=")
+        print("Complaint String:", complaint_str)
 
         if len(complaint_str) == 2:
             complaint_id = complaint_str[1]
@@ -115,5 +118,6 @@ def main():
 # Run the main function
 if __name__ == "__main__":
     main()
+
 
 
