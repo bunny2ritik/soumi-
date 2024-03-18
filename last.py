@@ -80,11 +80,8 @@ def save_feedback_to_api(complaint_id, engineer_review, engineer_rating, coordin
     else:
         st.error('Failed to submit feedback. Please try again later.')
 
-# Get the current URL query parameters
-query_params = st.query_params
-
 # Get the complaint ID from the query parameters
-complaint_id_encoded = 'Y29tcGxhaW50X2lkPTI3NlVQMjMwNzEwNzUx'
+complaint_id_encoded = st.query_params.get('complaint_id', '')
 
 # Decode the complaint ID from base64
 try:
@@ -140,6 +137,7 @@ if submit_button:
     # Submit feedback and handle API request
     if complaint_id_decoded:
         submit_feedback(complaint_id_decoded, engineer_review, coordinator_review)
+
 
 
 
