@@ -81,16 +81,20 @@ def save_feedback_to_api(complaint_id, engineer_review, engineer_rating, coordin
         st.error('Failed to submit feedback. Please try again later.')
 
 # Read the complaint ID from URL query parameters
-complaint_id_encoded = st.experimental_get_query_params().get('complaint_id', [''])[0]
+complaint_id_param = st.experimental_get_query_params().get('complaint_id', [''])[0]
+
+# Check if the complaint ID is already encoded
+if not complaint_id_param.startswith("complaint_id="):
+    # If it's not encoded, encode it
+    complaint_id_encoded = base64.b64encode(complaint_id_param.encode()).decode('utf-8')
+else:
+    # If it's encoded, extract the complaint ID
+    complaint_id_encoded = complaint_id_param[len("complaint_id="):]
 
 # Decode the complaint ID from base64
 try:
-    # If the complaint ID is provided
-    if complaint_id_encoded:
-        # Decode the complaint ID from base64
-        complaint_id_decoded = base64.b64decode(complaint_id_encoded).decode('utf-8')
-    else:
-        complaint_id_decoded = None
+    # Decode the complaint ID from base64
+    complaint_id_decoded = base64.b64decode(complaint_id_encoded).decode('utf-8')
 except Exception as e:
     st.error("Error decoding complaint ID: {}".format(e))
     st.stop()
@@ -142,6 +146,7 @@ if submit_button:
     # Submit feedback and handle API request
     if complaint_id_decoded:
         submit_feedback(complaint_id_decoded, engineer_review, coordinator_review)
+
 
 
 
