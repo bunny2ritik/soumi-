@@ -83,6 +83,10 @@ def save_feedback_to_api(complaint_id, engineer_review, engineer_rating, coordin
 # Read the complaint ID from URL query parameters
 complaint_id_encoded = st.experimental_get_query_params().get('complaint_id', [''])[0]
 
+# Add padding characters ('=') to the end of the encoded string if needed
+while len(complaint_id_encoded) % 4 != 0:
+    complaint_id_encoded += '='
+
 # Decode the complaint ID from base64
 try:
     # Extract the encoded part before the '=' character
@@ -137,5 +141,6 @@ submit_button = st.button('Submit')
 # Submit feedback and handle API request
 if submit_button:
     submit_feedback(complaint_id_decoded, engineer_review, coordinator_review)
+
 
 
