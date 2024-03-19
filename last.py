@@ -82,8 +82,7 @@ def save_feedback_to_api(complaint_id, engineer_review, engineer_rating, coordin
         st.error('Failed to submit feedback. Please try again later.')
 
 # Read the complete URL
-complete_url = st.url
-
+complete_url = st.url()
 # Parse the URL to get the complaint ID
 parsed_url = urlparse(complete_url)
 query_params = parse_qs(parsed_url.query)
