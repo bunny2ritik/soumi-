@@ -1,11 +1,17 @@
-SOUMI
 import streamlit as st
 import requests
 from textblob import TextBlob
 import base64
 
 # Function to submit feedback and handle API request
-def submit_feedback(complaint_id, engineer_review, coordinator_review):
+def submit_feedback(complaint_id_encoded, engineer_review, coordinator_review):
+    # Decode the complaint ID from base64
+    try:
+        complaint_id_decoded = base64.b64decode(complaint_id_encoded).decode('utf-8')
+    except Exception as e:
+        st.error("Error decoding complaint ID: {}".format(e))
+        st.stop()
+
     # Perform sentiment analysis for engineer review
     engineer_sentiment = perform_sentiment_analysis(engineer_review)
 
@@ -17,7 +23,7 @@ def submit_feedback(complaint_id, engineer_review, coordinator_review):
     coordinator_rating = derive_rating(coordinator_sentiment)
 
     # Save the feedback to the API database
-    save_feedback_to_api(complaint_id, engineer_review, engineer_rating, coordinator_review, coordinator_rating, engineer_sentiment, coordinator_sentiment)
+    save_feedback_to_api(complaint_id_decoded, engineer_review, engineer_rating, coordinator_review, coordinator_rating, engineer_sentiment, coordinator_sentiment)
     
     # Display sentiment analysis results
     st.header('Sentiment Analysis Results:')
@@ -84,13 +90,6 @@ def save_feedback_to_api(complaint_id, engineer_review, engineer_rating, coordin
 # Read the complaint ID from URL query parameters
 complaint_id_encoded = st.experimental_get_query_params().get('complaint_id', [''])[0]
 
-# Decode the complaint ID from base64
-try:
-    complaint_id_decoded = base64.b64decode(complaint_id_encoded).decode('utf-8')
-except Exception as e:
-    st.error("Error decoding complaint ID: {}".format(e))
-    st.stop()
-
 # Style the feedback form
 def style_feedback_form(complaint_id):
     # Add logo with increased size
@@ -115,7 +114,7 @@ def style_feedback_form(complaint_id):
     return engineer_review, coordinator_review
 
 # Style the feedback form
-engineer_review, coordinator_review = style_feedback_form(complaint_id_decoded)
+engineer_review, coordinator_review = style_feedback_form(complaint_id_encoded)
 
 # Add a submit button with custom style
 submit_button_style = """
@@ -136,6 +135,5 @@ submit_button = st.button('Submit')
 # Submit feedback and handle API request
 if submit_button:
     # Submit feedback and handle API request
-    if complaint_id_decoded:
-        submit_feedback(complaint_id_decoded, engineer_review, coordinator_review)
-
+    if complaint_id_encoded:
+        submit_feedback(complaint_id_encoded, engineer_review, coordinator_review)
