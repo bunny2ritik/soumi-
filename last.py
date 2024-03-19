@@ -7,7 +7,9 @@ import base64
 def submit_feedback(complaint_id_encoded, engineer_review, coordinator_review):
     # Decode the complaint ID from base64
     try:
-        complaint_id_decoded = base64.b64decode(complaint_id_encoded).decode('utf-8')
+        # Extract the encoded part before the '=' character
+        encoded_part = complaint_id_encoded.split('=')[0]
+        complaint_id_decoded = base64.b64decode(encoded_part).decode('utf-8')
     except Exception as e:
         st.error("Error decoding complaint ID: {}".format(e))
         st.stop()
@@ -137,3 +139,4 @@ if submit_button:
     # Submit feedback and handle API request
     if complaint_id_encoded:
         submit_feedback(complaint_id_encoded, engineer_review, coordinator_review)
+
