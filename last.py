@@ -85,7 +85,12 @@ complaint_id_encoded = st.experimental_get_query_params().get('complaint_id', ['
 
 # Decode the complaint ID from base64
 try:
-    complaint_id_decoded = base64.b64decode(complaint_id_encoded).decode('utf-8')
+    # If the complaint ID is provided
+    if complaint_id_encoded:
+        # Decode the complaint ID from base64
+        complaint_id_decoded = base64.b64decode(complaint_id_encoded).decode('utf-8')
+    else:
+        complaint_id_decoded = None
 except Exception as e:
     st.error("Error decoding complaint ID: {}".format(e))
     st.stop()
@@ -137,5 +142,6 @@ if submit_button:
     # Submit feedback and handle API request
     if complaint_id_decoded:
         submit_feedback(complaint_id_decoded, engineer_review, coordinator_review)
+
 
 
