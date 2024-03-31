@@ -9,13 +9,17 @@ def decode_complaint_id_from_url(url_query):
         complaint_id_encoded = url_query.get('complaint_id', [''])[0]
         if complaint_id_encoded:
             try:
+                # Check if the complaint ID is in the format "complaintID=base64_encoded_id"
+                if 'complaintID=' in complaint_id_encoded:
+                    complaint_id_encoded = complaint_id_encoded.split('=')[1]
+                
                 complaint_id_decoded = base64.b64decode(complaint_id_encoded).decode('utf-8')
                 return complaint_id_decoded
             except Exception as e:
                 st.error("Error decoding complaint ID: {}".format(e))
-                st.stop()
-    st.error("Complaint ID not found in URL query parameters.")
-    st.stop()
+                return None
+    st.warning("Complaint ID not found in URL query parameters.")
+    return None
 
 # Function to submit feedback and handle API request
 def submit_feedback(complaint_id, engineer_review, coordinator_review):
