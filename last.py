@@ -3,16 +3,9 @@ import requests
 from textblob import TextBlob
 import base64
 
-
-# Function to decode the parameter name 'q' from base64
-def decode_parameter_name(encoded_parameter_name):
-    return base64.b64decode(encoded_parameter_name.encode('utf-8')).decode('utf-8')
-
 # Function to decode the complaint ID from the URL query parameters
-def decode_complaint_id_from_url(url_query):
+def decode_complaint_id_from_url(url_query, encoded_parameter_name):
     if url_query:
-        encoded_parameter_name = encode_parameter_name('q')
-        print("Encoded Parameter Name:", encoded_parameter_name)
         complaint_id_encoded = url_query.get(encoded_parameter_name, [''])[0]
         if complaint_id_encoded:
             try:
@@ -104,8 +97,11 @@ def save_feedback_to_api(complaint_id, engineer_review, engineer_rating, coordin
 # Read the URL query parameters
 url_query = st.experimental_get_query_params()
 
+# Define the encoded parameter name
+encoded_parameter_name = 'q'
+
 # Decode the complaint ID from the URL query parameters
-complaint_id_decoded = decode_complaint_id_from_url(url_query)
+complaint_id_decoded = decode_complaint_id_from_url(url_query, encoded_parameter_name)
 
 # Style the feedback form
 def style_feedback_form(complaint_id):
@@ -133,19 +129,6 @@ def style_feedback_form(complaint_id):
 # Style the feedback form
 engineer_review, coordinator_review = style_feedback_form(complaint_id_decoded)
 
-# Add a submit button with custom style
-submit_button_style = """
-    <style>
-        div.stButton > button:first-child {
-            background-color: #4CAF50; /* Green */
-            color: white;
-        }
-    </style>
-"""
-
-# Inject the submit button style into the Streamlit app
-st.markdown(submit_button_style, unsafe_allow_html=True)
-
 # Add a submit button
 submit_button = st.button('Submit')
 
@@ -154,3 +137,4 @@ if submit_button:
     # Submit feedback and handle API request
     if complaint_id_decoded:
         submit_feedback(complaint_id_decoded, engineer_review, coordinator_review)
+
