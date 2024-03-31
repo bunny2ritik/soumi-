@@ -3,9 +3,6 @@ import requests
 from textblob import TextBlob
 import base64
 
-# Function to encode the parameter name 'q' with base64
-def encode_parameter_name(parameter_name):
-    return base64.b64encode(parameter_name.encode('utf-8')).decode('utf-8')
 
 # Function to decode the parameter name 'q' from base64
 def decode_parameter_name(encoded_parameter_name):
@@ -14,7 +11,9 @@ def decode_parameter_name(encoded_parameter_name):
 # Function to decode the complaint ID from the URL query parameters
 def decode_complaint_id_from_url(url_query):
     if url_query:
-        complaint_id_encoded = url_query.get(decode_parameter_name('q'), [''])[0]
+        encoded_parameter_name = encode_parameter_name('q')
+        print("Encoded Parameter Name:", encoded_parameter_name)
+        complaint_id_encoded = url_query.get(encoded_parameter_name, [''])[0]
         if complaint_id_encoded:
             try:
                 complaint_id_decoded = base64.b64decode(complaint_id_encoded).decode('utf-8')
