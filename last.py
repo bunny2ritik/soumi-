@@ -5,6 +5,8 @@ import base64
 
 # Function to decode the complaint ID from the URL query parameters
 def decode_complaint_id_from_url(url_query):
+    special_complaint_id = "alpha"  # Define the special complaint ID here
+
     if url_query:
         complaint_id_encoded = url_query.get('complaint_id', [''])[0]
         if complaint_id_encoded:
@@ -13,8 +15,8 @@ def decode_complaint_id_from_url(url_query):
                 return complaint_id_decoded
             except Exception as e:
                 st.error("Error decoding complaint ID: {}".format(e))
-                return None
-    return None
+                return special_complaint_id  # Return special complaint ID on decoding error
+    return special_complaint_id  # Return special complaint ID if no complaint ID found in URL query parameters
 
 # Function to validate user inputs
 def validate_feedback(engineer_review, coordinator_review):
@@ -102,12 +104,8 @@ def save_feedback_to_api(complaint_id, engineer_review, engineer_rating, coordin
 
 # Function to style the feedback form
 def style_feedback_form(complaint_id):
-    # Add logo with increased size
-    logo_image = "https://github.com/bunny2ritik/Utl-feedback/blob/main/newlogo.png?raw=true"  # Path to your logo image
-    st.image(logo_image, use_column_width=True, width=400)
-    
-    # Display the title for the complaint ID without quotation marks
-    st.markdown(f"<h3 style='text-align: center;'>Feedback for Complaint ID : {complaint_id}</h3>", unsafe_allow_html=True)
+    # Display the decoded complaint ID
+    st.write(f"Decoded Complaint ID: {complaint_id}")
 
     # Set title for service engineer section
     st.header('Service Engineer ')
