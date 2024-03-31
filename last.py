@@ -24,20 +24,6 @@ def submit_feedback(complaint_id, engineer_review, coordinator_review):
     st.write('Service Executive Coordinator Review Sentiment:', coordinator_sentiment)
 
 # Function to decode the complaint ID from the URL query parameters
-def decode_complaint_id_from_url(url_query):
-    if url_query:
-        query_params = url_query.split('&')
-        for param in query_params:
-            if 'complaint_id=' in param:
-                complaint_id_encoded = param.split('=')[1]
-                try:
-                    complaint_id_decoded = base64.b64decode(complaint_id_encoded).decode('utf-8')
-                    return complaint_id_decoded
-                except Exception as e:
-                    st.error("Error decoding complaint ID: {}".format(e))
-                    return None
-    return None
-
 # Function to perform sentiment analysis using TextBlob
 # Remaining functions stay the same as before
 
