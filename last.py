@@ -3,10 +3,14 @@ import requests
 from textblob import TextBlob
 import base64
 
+# Function to decode the parameter name
+def decode_parameter_name(encoded_parameter_name):
+    return base64.b64decode(encoded_parameter_name.encode('utf-8')).decode('utf-8')
+
 # Function to decode the complaint ID from the URL query parameters
 def decode_complaint_id_from_url(url_query, encoded_parameter_name):
     if url_query:
-        complaint_id_encoded = url_query.get(encoded_parameter_name, [''])[0]
+        complaint_id_encoded = url_query.get(decode_parameter_name(encoded_parameter_name), [''])[0]
         if complaint_id_encoded:
             try:
                 complaint_id_decoded = base64.b64decode(complaint_id_encoded).decode('utf-8')
@@ -100,8 +104,11 @@ url_query = st.experimental_get_query_params()
 # Define the encoded parameter name
 encoded_parameter_name = 'q'
 
+# Decode the parameter name 'q'
+decoded_parameter_name = decode_parameter_name(encoded_parameter_name)
+
 # Decode the complaint ID from the URL query parameters
-complaint_id_decoded = decode_complaint_id_from_url(url_query, encoded_parameter_name)
+complaint_id_decoded = decode_complaint_id_from_url(url_query, decoded_parameter_name)
 
 # Style the feedback form
 def style_feedback_form(complaint_id):
@@ -137,4 +144,3 @@ if submit_button:
     # Submit feedback and handle API request
     if complaint_id_decoded:
         submit_feedback(complaint_id_decoded, engineer_review, coordinator_review)
-
