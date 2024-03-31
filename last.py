@@ -5,8 +5,6 @@ import base64
 
 # Function to decode the complaint ID from the URL query parameters
 def decode_complaint_id_from_url(url_query):
-    special_complaint_id = "alpha"  # Define the special complaint ID here
-
     if url_query:
         complaint_id_encoded = url_query.get('complaint_id', [''])[0]
         if complaint_id_encoded:
@@ -15,15 +13,9 @@ def decode_complaint_id_from_url(url_query):
                 return complaint_id_decoded
             except Exception as e:
                 st.error("Error decoding complaint ID: {}".format(e))
-                return special_complaint_id  # Return special complaint ID on decoding error
-    return special_complaint_id  # Return special complaint ID if no complaint ID found in URL query parameters
-
-# Function to validate user inputs
-def validate_feedback(engineer_review, coordinator_review):
-    if not engineer_review or not coordinator_review:
-        st.warning("Please provide feedback for both Service Engineer and Coordinator.")
-        return False
-    return True
+                st.stop()
+    st.error("Complaint ID not found in URL query parameters.")
+    st.stop()
 
 # Function to submit feedback and handle API request
 def submit_feedback(complaint_id, engineer_review, coordinator_review):
@@ -102,10 +94,20 @@ def save_feedback_to_api(complaint_id, engineer_review, engineer_rating, coordin
     else:
         st.error('Failed to submit feedback. Please try again later.')
 
-# Function to style the feedback form
+# Read the URL query parameters
+url_query = st.experimental_get_query_params()
+
+# Decode the complaint ID from the URL query parameters
+complaint_id_decoded = decode_complaint_id_from_url(url_query)
+
+# Style the feedback form
 def style_feedback_form(complaint_id):
-    # Display the decoded complaint ID
-    st.write(f"Decoded Complaint ID: {complaint_id}")
+    # Add logo with increased size
+    logo_image = "https://github.com/bunny2ritik/Utl-feedback/blob/main/newlogo.png?raw=true"  # Path to your logo image
+    st.image(logo_image, use_column_width=True, width=400)
+    
+    # Display the title for the complaint ID without quotation marks
+    st.markdown(f"<h3 style='text-align: center;'>Feedback for Complaint ID : {complaint_id}</h3>", unsafe_allow_html=True)
 
     # Set title for service engineer section
     st.header('Service Engineer ')
@@ -121,23 +123,27 @@ def style_feedback_form(complaint_id):
 
     return engineer_review, coordinator_review
 
-# Main function to run the app
-def main():
-    url_query = st.experimental_get_query_params()
-    complaint_id_decoded = decode_complaint_id_from_url(url_query)
+# Style the feedback form
+engineer_review, coordinator_review = style_feedback_form(complaint_id_decoded)
 
-    if not complaint_id_decoded:
-        st.error("Complaint ID not found or could not be decoded.")
-        st.stop()
+# Add a submit button with custom style
+submit_button_style = """
+    <style>
+        div.stButton > button:first-child {
+            background-color: #4CAF50; /* Green */
+            color: white;
+        }
+    </style>
+"""
 
-    engineer_review, coordinator_review = style_feedback_form(complaint_id_decoded)
+# Inject the submit button style into the Streamlit app
+st.markdown(submit_button_style, unsafe_allow_html=True)
 
-    submit_button = st.button('Submit')
+# Add a submit button
+submit_button = st.button('Submit')
 
-    if submit_button:
-        if validate_feedback(engineer_review, coordinator_review):
-            submit_feedback(complaint_id_decoded, engineer_review, coordinator_review)
-
-# Call the main function to run the app
-if __name__ == "__main__":
-    main()
+# Submit feedback and handle API request
+if submit_button:
+    # Submit feedback and handle API request
+    if complaint_id_decoded:
+        submit_feedback(complaint_id_decoded, engineer_review, coordinator_review)
