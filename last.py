@@ -7,25 +7,28 @@ from textblob import TextBlob
 def decode_complaint_id_from_url():
     # Get query parameters from the URL
     query_params = st.experimental_get_query_params()
-
-    # Access the 'q' parameter, if present
+    
+    # Check if 'q' parameter is present in query parameters
     if 'q' in query_params:
-        # The 'q' parameter value is returned as a list, so we take the first element
+        # 'q' parameter value is returned as a list, so we take the first element
         encoded_complaint_id = query_params['q'][0]
 
         try:
-            # Decode the base64-encoded string to obtain the original complaint ID
+            # Base64-decode the encoded complaint ID
             decoded_bytes = base64.b64decode(encoded_complaint_id)
             complaint_id = decoded_bytes.decode('utf-8')
+
+            # Return the decoded complaint ID
             return complaint_id
 
         except Exception as e:
-            st.error(f"Error decoding complaint ID: {e}")
+            # Error handling for decoding issues
+            st.error(f"Error decoding complaint ID: {str(e)}. Ensure the 'q' parameter contains a valid base64-encoded complaint ID.")
             return None
-
-    # If 'q' parameter is not found, or if there is an error decoding the ID
-    st.error("Complaint ID not found in URL query parameters.")
-    return None
+    else:
+        # Error message if 'q' parameter is not found in query parameters
+        st.error("Complaint ID not found in URL query parameters. Ensure the URL contains a base64-encoded 'q' parameter.")
+        return None
 
 # Function to perform sentiment analysis using TextBlob
 def perform_sentiment_analysis(review_text):
@@ -65,7 +68,7 @@ def submit_feedback(complaint_id, engineer_review, coordinator_review):
 
     # API data to submit feedback
     feedback_data = {
-        'apiKey': 'RnVqaXlhbWEgUG93ZXIgU3lzdGVtcyBQdnQuIEx0ZC4=.$2y$10$sd9eji2d1mc8i1nd1xsalefYiroiLa46/X0U9ihoGeOU7FaWDg30a.',
+        'apiKey': 'RnVqaXlhbWEgUG93ZXIgU3lzdGVtcyBQdnQuIEx0ZC4=.$2y$10$sd9eji2d1mc8i1nd1xsalefYiroiLa46/X0U9ihoGeOU7FaWDg30a',
         'complaint_id': complaint_id,
         'engineer_feedback': {
             'feedback': engineer_review,
@@ -89,15 +92,15 @@ def submit_feedback(complaint_id, engineer_review, coordinator_review):
     if response.status_code == 200:
         st.success('Feedback submitted successfully!')
     else:
-        st.error('Failed to submit feedback. Please try again later.')
+        st.error(f'Failed to submit feedback. HTTP status code: {response.status_code}. Please try again later.')
 
 # Style and layout of the feedback form
 def style_feedback_form(complaint_id):
-    # Add logo with increased size
-    logo_image = "https://github.com/bunny2ritik/Utl-feedback/blob/main/newlogo.png?raw=true"  # Path to your logo image
+    # Add logo
+    logo_image = "https://github.com/bunny2ritik/Utl-feedback/blob/main/newlogo.png?raw=true"
     st.image(logo_image, use_column_width=True, width=400)
 
-    # Display the title for the complaint ID
+    # Display title for the complaint ID
     st.markdown(f"<h3 style='text-align: center;'>Feedback for Complaint ID: {complaint_id}</h3>", unsafe_allow_html=True)
 
     # Engineer review input
