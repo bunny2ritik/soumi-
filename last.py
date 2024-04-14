@@ -50,7 +50,7 @@ def derive_rating(sentiment_category):
         return 2.5
     elif sentiment_category == 'Good':
         return 4.0
-    else: # 'Excellent'
+    else:  # 'Excellent'
         return 5.0
 
 # Function to submit feedback and handle API request
@@ -98,7 +98,7 @@ def style_feedback_form(complaint_id):
     st.image(logo_image, use_column_width=True, width=400)
 
     # Display the title for the complaint ID
-    st.markdown(f"<h3 style='text-align: center;'>Feedback for Complaint ID : {complaint_id}</h3>", unsafe_allow_html=True)
+    st.markdown(f"<h3 style='text-align: center;'>Feedback for Complaint ID: {complaint_id}</h3>", unsafe_allow_html=True)
 
     # Engineer review input
     st.header('Service Engineer')
