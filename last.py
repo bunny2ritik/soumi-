@@ -3,7 +3,18 @@ import base64
 import requests
 from textblob import TextBlob
 
-# Function to decode an encoded query parameter name and value from the URL
+# Function to adjust padding and decode a base64-encoded string
+def decode_base64(encoded_string):
+    # Calculate required padding
+    padding_needed = 4 - len(encoded_string) % 4
+    # Add required padding
+    if padding_needed < 4:
+        encoded_string += "=" * padding_needed
+    # Decode the base64-encoded string
+    decoded_bytes = base64.b64decode(encoded_string)
+    return decoded_bytes.decode('utf-8')
+
+# Function to decode the encoded query parameter name and value from the URL
 def decode_encoded_query_parameter():
     # Get query parameters from the URL
     query_params = st.experimental_get_query_params()
@@ -11,16 +22,14 @@ def decode_encoded_query_parameter():
     # Iterate over query parameters to find the encoded query parameter name
     for encoded_param_name, param_value in query_params.items():
         try:
-            # Base64-decode the encoded query parameter name
-            decoded_param_name_bytes = base64.b64decode(encoded_param_name)
-            decoded_param_name = decoded_param_name_bytes.decode('utf-8')
+            # Decode the encoded query parameter name using the decode_base64 function
+            decoded_param_name = decode_base64(encoded_param_name)
 
             # Check if the decoded query parameter name is 'complaintId'
             if decoded_param_name == 'complaintId':
-                # Base64-decode the encoded parameter value
+                # Decode the encoded parameter value using the decode_base64 function
                 encoded_complaint_id = param_value[0]
-                decoded_complaint_id_bytes = base64.b64decode(encoded_complaint_id)
-                decoded_complaint_id = decoded_complaint_id_bytes.decode('utf-8')
+                decoded_complaint_id = decode_base64(encoded_complaint_id)
 
                 # Store the decoded complaint ID in session state
                 st.session_state.decoded_complaint_id = decoded_complaint_id
@@ -76,7 +85,7 @@ def submit_feedback(decoded_complaint_id, engineer_review, coordinator_review):
     # API data to submit feedback
     feedback_data = {
         'apiKey': 'RnVqaXlhbWEgUG93ZXIgU3lzdGVtcyBQdnQuIEx0ZC4=.$2y$10$sd9eji2d1mc8i1nd1xsalefYiroiLa46/X0U9ihoGeOU7FaWDg30a',
-        'decoded_complaint_id': decoded_complaint_id,
+        'complaint_id': decoded_complaint_id,
         'engineer_feedback': {
             'feedback': engineer_review,
             'rating': engineer_rating,
@@ -143,3 +152,4 @@ def main():
 # Run the Streamlit app
 if __name__ == "__main__":
     main()
+
