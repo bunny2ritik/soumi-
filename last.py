@@ -3,34 +3,38 @@ import base64
 import requests
 from textblob import TextBlob
 
-# Function to decode a base64-encoded string from a URL query parameter
-def decode_q_parameter():
+# Function to decode an encoded query parameter name and value from the URL
+def decode_encoded_query_parameter():
     # Get query parameters from the URL
     query_params = st.experimental_get_query_params()
 
-    # Check if 'q' parameter is present in query parameters
-    if 'q' in query_params:
-        # 'q' parameter value is returned as a list, so we take the first element
-        encoded_q_param = query_params['q'][0]
-
+    # Iterate over query parameters to find the encoded query parameter name
+    for encoded_param_name, param_value in query_params.items():
         try:
-            # Base64-decode the 'q' parameter
-            decoded_bytes = base64.b64decode(encoded_q_param)
-            decoded_q = decoded_bytes.decode('utf-8')
+            # Base64-decode the encoded query parameter name
+            decoded_param_name_bytes = base64.b64decode(encoded_param_name)
+            decoded_param_name = decoded_param_name_bytes.decode('utf-8')
 
-            # Store the decoded parameter in session state
-            st.session_state.decoded_q = decoded_q
+            # Check if the decoded query parameter name is 'complaintId'
+            if decoded_param_name == 'complaintId':
+                # Base64-decode the encoded parameter value
+                encoded_complaint_id = param_value[0]
+                decoded_complaint_id_bytes = base64.b64decode(encoded_complaint_id)
+                decoded_complaint_id = decoded_complaint_id_bytes.decode('utf-8')
 
-            # Redirect the user to remove the query parameter from the URL
-            st.experimental_rerun()
+                # Store the decoded complaint ID in session state
+                st.session_state.decoded_complaint_id = decoded_complaint_id
+
+                # Redirect the user to remove the query parameter from the URL
+                st.experimental_rerun()
 
         except Exception as e:
             # Error handling for decoding issues
-            st.error(f"Error decoding 'q' parameter: {str(e)}. Ensure the 'q' parameter contains a valid base64-encoded value.")
+            st.error(f"Error decoding encoded query parameter name or value: {str(e)}. Ensure the query parameter name and value are base64-encoded and valid.")
             return None
     else:
-        # Error message if 'q' parameter is not found in query parameters
-        st.error("Query parameter 'q' not found in URL. Ensure the URL contains a base64-encoded 'q' parameter.")
+        # Error message if 'complaintId' is not found in URL query parameters
+        st.error("Query parameter 'complaintId' not found in URL. Ensure the URL contains a base64-encoded 'complaintId' parameter.")
         return None
 
 # Function to perform sentiment analysis using TextBlob
@@ -60,7 +64,7 @@ def derive_rating(sentiment_category):
         return 5.0
 
 # Function to submit feedback and handle API request
-def submit_feedback(decoded_q, engineer_review, coordinator_review):
+def submit_feedback(decoded_complaint_id, engineer_review, coordinator_review):
     # Perform sentiment analysis for engineer review
     engineer_sentiment = perform_sentiment_analysis(engineer_review)
     engineer_rating = derive_rating(engineer_sentiment)
@@ -72,7 +76,7 @@ def submit_feedback(decoded_q, engineer_review, coordinator_review):
     # API data to submit feedback
     feedback_data = {
         'apiKey': 'RnVqaXlhbWEgUG93ZXIgU3lzdGVtcyBQdnQuIEx0ZC4=.$2y$10$sd9eji2d1mc8i1nd1xsalefYiroiLa46/X0U9ihoGeOU7FaWDg30a',
-        'decoded_q': decoded_q,
+        'decoded_complaint_id': decoded_complaint_id,
         'engineer_feedback': {
             'feedback': engineer_review,
             'rating': engineer_rating,
@@ -103,9 +107,9 @@ def style_feedback_form():
     logo_image = "https://github.com/bunny2ritik/Utl-feedback/blob/main/newlogo.png?raw=true"
     st.image(logo_image, use_column_width=True, width=400)
 
-    # Display title for the decoded 'q' parameter
-    decoded_q = st.session_state.get('decoded_q')
-    st.markdown(f"<h3 style='text-align: center;'>Feedback for Complaint ID: {decoded_q}</h3>", unsafe_allow_html=True)
+    # Display title for the decoded 'complaintId' parameter
+    decoded_complaint_id = st.session_state.get('decoded_complaint_id')
+    st.markdown(f"<h3 style='text-align: center;'>Feedback for Complaint ID: {decoded_complaint_id}</h3>", unsafe_allow_html=True)
 
     # Engineer review input
     st.header('Service Engineer')
@@ -119,13 +123,13 @@ def style_feedback_form():
 
 # Main application code
 def main():
-    # Check if the decoded 'q' parameter is already in session state
-    if 'decoded_q' not in st.session_state:
-        # Decode 'q' parameter from the URL query parameters
-        decode_q_parameter()
+    # Check if the decoded 'complaintId' parameter is already in session state
+    if 'decoded_complaint_id' not in st.session_state:
+        # Decode 'complaintId' parameter from the URL query parameters
+        decode_encoded_query_parameter()
 
-    # If the decoded 'q' parameter is available in session state, proceed with the form
-    if 'decoded_q' in st.session_state:
+    # If the decoded 'complaintId' parameter is available in session state, proceed with the form
+    if 'decoded_complaint_id' in st.session_state:
         # Style the feedback form
         engineer_review, coordinator_review = style_feedback_form()
         
@@ -134,7 +138,7 @@ def main():
 
         # If the submit button is clicked, handle the submission
         if submit_button:
-            submit_feedback(st.session_state.decoded_q, engineer_review, coordinator_review)
+            submit_feedback(st.session_state.decoded_complaint_id, engineer_review, coordinator_review)
 
 # Run the Streamlit app
 if __name__ == "__main__":
