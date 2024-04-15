@@ -8,34 +8,33 @@ def decode_complaint_id_from_url():
     # Get query parameters from the URL
     query_params = st.experimental_get_query_params()
 
-    # Base64-encoded parameter name (q)
-    encoded_param_name = base64.b64encode(b'q').decode('utf-8')
-
-    try:
-        # Decode the base64-encoded parameter name to obtain 'q'
-        decoded_param_name = base64.b64decode(encoded_param_name).decode('utf-8')
-    except Exception as e:
-        st.error(f"Error decoding parameter name: {e}")
-        return None
-
-    # Access the decoded parameter name in the query parameters
-    if decoded_param_name in query_params:
-        # The parameter value is returned as a list, so we take the first element
-        encoded_complaint_id = query_params[decoded_param_name][0]
-
+    # Iterate through the query parameters
+    for encoded_key, value_list in query_params.items():
+        # Base64 decode the key
         try:
-            # Decode the base64-encoded complaint ID to obtain the original complaint ID
-            decoded_bytes = base64.b64decode(encoded_complaint_id)
-            complaint_id = decoded_bytes.decode('utf-8')
-            return complaint_id
-
+            decoded_key = base64.b64decode(encoded_key).decode('utf-8')
         except Exception as e:
-            st.error(f"Error decoding complaint ID: {e}")
+            st.error(f"Error decoding parameter name: {e}")
             return None
-    else:
-        # If the encoded parameter name is not found, or if there is an error decoding the ID
-        st.error("Complaint ID not found in URL query parameters.")
-        return None
+
+        # Check if the decoded key is 'q'
+        if decoded_key == 'q':
+            # Get the encoded complaint ID from the value list (first element)
+            encoded_complaint_id = value_list[0]
+
+            try:
+                # Decode the base64-encoded complaint ID to obtain the original complaint ID
+                decoded_complaint_id_bytes = base64.b64decode(encoded_complaint_id)
+                complaint_id = decoded_complaint_id_bytes.decode('utf-8')
+                return complaint_id
+
+            except Exception as e:
+                st.error(f"Error decoding complaint ID: {e}")
+                return None
+
+    # If 'q' parameter is not found, or if there is an error decoding the ID
+    st.error("Complaint ID not found in URL query parameters.")
+    return None
 
 # Function to perform sentiment analysis using TextBlob
 def perform_sentiment_analysis(review_text):
@@ -138,5 +137,5 @@ def main():
             submit_feedback(complaint_id_decoded, engineer_review, coordinator_review)
 
 # Run the Streamlit app
-if __name__ == "__main__":
+if __name__=="__main__":
     main()
