@@ -14,20 +14,20 @@ def decode_base64(encoded_string):
     decoded_bytes = base64.b64decode(encoded_string)
     return decoded_bytes.decode('utf-8')
 
-# Function to decode the encoded query parameter name and value from the URL
-def decode_encoded_query_parameter():
+# Function to decode the base64-encoded query parameter name and value from the URL
+def decode_query_parameter():
     # Get query parameters from the URL
     query_params = st.experimental_get_query_params()
 
     # Iterate over query parameters to find the encoded query parameter name
     for encoded_param_name, param_value in query_params.items():
         try:
-            # Decode the encoded query parameter name using the decode_base64 function
+            # Decode the base64-encoded parameter name
             decoded_param_name = decode_base64(encoded_param_name)
 
-            # Check if the decoded query parameter name is 'complaintId'
+            # Check if the decoded parameter name is 'complaintId'
             if decoded_param_name == 'complaintId':
-                # Decode the encoded parameter value using the decode_base64 function
+                # Decode the base64-encoded parameter value
                 encoded_complaint_id = param_value[0]
                 decoded_complaint_id = decode_base64(encoded_complaint_id)
 
@@ -39,12 +39,12 @@ def decode_encoded_query_parameter():
 
         except Exception as e:
             # Error handling for decoding issues
-            st.error(f"Error decoding encoded query parameter name or value: {str(e)}. Ensure the query parameter name and value are base64-encoded and valid.")
+            st.error(f"Error decoding query parameter: {str(e)}. Ensure the query parameter name and value are base64-encoded and valid.")
             return None
-    else:
-        # Error message if 'complaintId' is not found in URL query parameters
-        st.error("Query parameter 'complaintId' not found in URL. Ensure the URL contains a base64-encoded 'complaintId' parameter.")
-        return None
+
+    # If no matching parameter name found, show an error
+    st.error("Query parameter 'complaintId' not found in URL. Ensure the URL contains a base64-encoded 'complaintId' parameter.")
+    return None
 
 # Function to perform sentiment analysis using TextBlob
 def perform_sentiment_analysis(review_text):
@@ -134,8 +134,8 @@ def style_feedback_form():
 def main():
     # Check if the decoded 'complaintId' parameter is already in session state
     if 'decoded_complaint_id' not in st.session_state:
-        # Decode 'complaintId' parameter from the URL query parameters
-        decode_encoded_query_parameter()
+        # Decode query parameter from the URL query parameters
+        decode_query_parameter()
 
     # If the decoded 'complaintId' parameter is available in session state, proceed with the form
     if 'decoded_complaint_id' in st.session_state:
@@ -152,4 +152,5 @@ def main():
 # Run the Streamlit app
 if __name__ == "__main__":
     main()
+
 
