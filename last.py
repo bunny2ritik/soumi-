@@ -3,47 +3,34 @@ import base64
 import requests
 from textblob import TextBlob
 
-# Function to adjust padding and decode a base64-encoded string
-def decode_base64(encoded_string):
-    # Calculate required padding
-    padding_needed = 4 - len(encoded_string) % 4
-    # Add required padding
-    if padding_needed < 4:
-        encoded_string += "=" * padding_needed
-    # Decode the base64-encoded string
-    decoded_bytes = base64.b64decode(encoded_string)
-    return decoded_bytes.decode('utf-8')
-
-# Function to decode the base64-encoded query parameter name and value from the URL
-def decode_query_parameter():
+# Function to decode the complaint ID from the URL query parameters
+def decode_complaint_id_from_url():
     # Get query parameters from the URL
     query_params = st.experimental_get_query_params()
 
-    # Iterate over query parameters to find the encoded query parameter name
-    for encoded_param_name, param_value in query_params.items():
+    # Base64-encoded parameter key for 'complaintid'
+    param_key_encoded = 'Y29tcGxhaW50aWQ='
+
+    # Decode the base64 encoded parameter key to 'complaintid'
+    param_key = base64.b64decode(param_key_encoded).decode('utf-8')
+
+    # Access the parameter using the decoded key
+    if param_key in query_params:
+        # The parameter value is returned as a list, so we take the first element
+        encoded_complaint_id = query_params[param_key][0]
+
         try:
-            # Decode the base64-encoded parameter name
-            decoded_param_name = decode_base64(encoded_param_name)
-
-            # Check if the decoded parameter name is 'complaintId'
-            if decoded_param_name == 'complaintId':
-                # Decode the base64-encoded parameter value
-                encoded_complaint_id = param_value[0]
-                decoded_complaint_id = decode_base64(encoded_complaint_id)
-
-                # Store the decoded complaint ID in session state
-                st.session_state.decoded_complaint_id = decoded_complaint_id
-
-                # Redirect the user to remove the query parameter from the URL
-                st.experimental_rerun()
+            # Decode the base64-encoded string to obtain the original complaint ID
+            decoded_bytes = base64.b64decode(encoded_complaint_id)
+            complaint_id = decoded_bytes.decode('utf-8')
+            return complaint_id
 
         except Exception as e:
-            # Error handling for decoding issues
-            st.error(f"Error decoding query parameter: {str(e)}. Ensure the query parameter name and value are base64-encoded and valid.")
+            st.error(f"Error decoding complaint ID: {e}")
             return None
 
-    # If no matching parameter name found, show an error
-    st.error("Query parameter 'complaintId' not found in URL. Ensure the URL contains a base64-encoded 'complaintId' parameter.")
+    # If parameter is not found, or if there is an error decoding the ID
+    st.error("Complaint ID not found in URL query parameters.")
     return None
 
 # Function to perform sentiment analysis using TextBlob
@@ -73,7 +60,7 @@ def derive_rating(sentiment_category):
         return 5.0
 
 # Function to submit feedback and handle API request
-def submit_feedback(decoded_complaint_id, engineer_review, coordinator_review):
+def submit_feedback(complaint_id, engineer_review, coordinator_review):
     # Perform sentiment analysis for engineer review
     engineer_sentiment = perform_sentiment_analysis(engineer_review)
     engineer_rating = derive_rating(engineer_sentiment)
@@ -84,8 +71,8 @@ def submit_feedback(decoded_complaint_id, engineer_review, coordinator_review):
 
     # API data to submit feedback
     feedback_data = {
-        'apiKey': 'RnVqaXlhbWEgUG93ZXIgU3lzdGVtcyBQdnQuIEx0ZC4=.$2y$10$sd9eji2d1mc8i1nd1xsalefYiroiLa46/X0U9ihoGeOU7FaWDg30a',
-        'complaint_id': decoded_complaint_id,
+        'apiKey': 'RnVqaXlhbWEgUG93ZXIgU3lzdGVtcyBQdnQuIEx0ZC4=.$2y$10$sd9eji2d1mc8i1nd1xsalefYiroiLa46/X0U9ihoGeOU7FaWDg30a.',
+        'complaint_id': complaint_id,
         'engineer_feedback': {
             'feedback': engineer_review,
             'rating': engineer_rating,
@@ -104,21 +91,20 @@ def submit_feedback(decoded_complaint_id, engineer_review, coordinator_review):
     # Send POST request to the API
     response = requests.post(api_url, json=feedback_data)
 
-    # Check response and provide feedback to the user
+    # Check response and provide feedback to user
     if response.status_code == 200:
         st.success('Feedback submitted successfully!')
     else:
-        st.error(f'Failed to submit feedback. HTTP status code: {response.status_code}. Please try again later.')
+        st.error('Failed to submit feedback. Please try again later.')
 
 # Style and layout of the feedback form
-def style_feedback_form():
+def style_feedback_form(complaint_id):
     # Add logo
-    logo_image = "https://github.com/bunny2ritik/Utl-feedback/blob/main/newlogo.png?raw=true"
-    st.image(logo_image, use_column_width=True, width=400)
+    logo_image = "https://github.com/bunny2ritik/Utl-feedback/blob/main/newlogo.png?raw=true"  # Path to your logo image
+    st.image(logo_image, use_column_width=True)
 
-    # Display title for the decoded 'complaintId' parameter
-    decoded_complaint_id = st.session_state.get('decoded_complaint_id')
-    st.markdown(f"<h3 style='text-align: center;'>Feedback for Complaint ID: {decoded_complaint_id}</h3>", unsafe_allow_html=True)
+    # Display the title for the complaint ID
+    st.markdown(f"<h3 style='text-align: center;'>Feedback for Complaint ID: {complaint_id}</h3>", unsafe_allow_html=True)
 
     # Engineer review input
     st.header('Service Engineer')
@@ -132,25 +118,21 @@ def style_feedback_form():
 
 # Main application code
 def main():
-    # Check if the decoded 'complaintId' parameter is already in session state
-    if 'decoded_complaint_id' not in st.session_state:
-        # Decode query parameter from the URL query parameters
-        decode_query_parameter()
+    # Decode complaint ID from the URL query parameters
+    complaint_id_decoded = decode_complaint_id_from_url()
 
-    # If the decoded 'complaintId' parameter is available in session state, proceed with the form
-    if 'decoded_complaint_id' in st.session_state:
+    # Ensure complaint_id_decoded is not None before proceeding
+    if complaint_id_decoded:
         # Style the feedback form
-        engineer_review, coordinator_review = style_feedback_form()
+        engineer_review, coordinator_review = style_feedback_form(complaint_id_decoded)
         
         # Add a submit button
         submit_button = st.button('Submit')
 
         # If the submit button is clicked, handle the submission
         if submit_button:
-            submit_feedback(st.session_state.decoded_complaint_id, engineer_review, coordinator_review)
+            submit_feedback(complaint_id_decoded, engineer_review, coordinator_review)
 
 # Run the Streamlit app
 if __name__ == "__main__":
     main()
-
-
