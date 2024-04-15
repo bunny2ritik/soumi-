@@ -10,10 +10,15 @@ def decode_complaint_id_from_url():
 
     # Iterate through the query parameters
     for encoded_key, value_list in query_params.items():
-        # Base64 decode the key
         try:
+            # Attempt to base64 decode the key
             decoded_key = base64.b64decode(encoded_key).decode('utf-8')
+        except base64.binascii.Error as e:
+            # Handle errors in base64 decoding
+            st.error(f"Error decoding parameter name: Incorrect padding. Please check the URL format.")
+            return None
         except Exception as e:
+            # Handle other exceptions
             st.error(f"Error decoding parameter name: {e}")
             return None
 
@@ -28,7 +33,12 @@ def decode_complaint_id_from_url():
                 complaint_id = decoded_complaint_id_bytes.decode('utf-8')
                 return complaint_id
 
+            except base64.binascii.Error:
+                # Handle errors in base64 decoding
+                st.error(f"Error decoding complaint ID: Incorrect padding. Please check the URL format.")
+                return None
             except Exception as e:
+                # Handle other exceptions
                 st.error(f"Error decoding complaint ID: {e}")
                 return None
 
@@ -139,4 +149,3 @@ def main():
 # Run the Streamlit app
 if __name__=="__main__":
     main()
-
