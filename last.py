@@ -8,16 +8,10 @@ def decode_complaint_id_from_url():
     # Get query parameters from the URL
     query_params = st.experimental_get_query_params()
 
-    # Base64-encoded parameter key for 'complaintid'
-    param_key_encoded = 'Y29tcGxhaW50aWQ='
-
-    # Decode the base64 encoded parameter key to 'complaintid'
-    param_key = base64.b64decode(param_key_encoded).decode('utf-8')
-
-    # Access the parameter using the decoded key
-    if param_key in query_params:
-        # The parameter value is returned as a list, so we take the first element
-        encoded_complaint_id = query_params[param_key][0]
+    # Access the 'q' parameter, if present
+    if 'q' in query_params:
+        # The 'q' parameter value is returned as a list, so we take the first element
+        encoded_complaint_id = query_params['q'][0]
 
         try:
             # Decode the base64-encoded string to obtain the original complaint ID
@@ -29,7 +23,7 @@ def decode_complaint_id_from_url():
             st.error(f"Error decoding complaint ID: {e}")
             return None
 
-    # If parameter is not found, or if there is an error decoding the ID
+    # If 'q' parameter is not found, or if there is an error decoding the ID
     st.error("Complaint ID not found in URL query parameters.")
     return None
 
@@ -136,3 +130,4 @@ def main():
 # Run the Streamlit app
 if __name__ == "__main__":
     main()
+
