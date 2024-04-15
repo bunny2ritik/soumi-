@@ -3,19 +3,55 @@ import requests
 from textblob import TextBlob
 import base64
 
-# Function to decode the complaint ID from the URL query parameters
-def decode_complaint_id_from_url(url_query):
-    if url_query:
-        complaint_id_encoded = url_query.get('q', [''])[0]
-        if complaint_id_encoded:
-            try:
-                complaint_id_decoded = base64.b64decode(complaint_id_encoded).decode('utf-8')
-                return complaint_id_decoded
-            except Exception as e:
-                st.error("Error decoding complaint ID: {}".format(e))
-                st.stop()
-    st.error("Complaint ID not found in URL query parameters.")
-    st.stop()
+# Function to decode base64-encoded query parameters from the URL
+def decode_complaint_id_from_query():
+    """Decode base64-encoded query parameters from the URL and return the complaint ID."""
+    # Read the URL query parameters using st.experimental_get_query_params
+    url_query = st.experimental_get_query_params()
+    
+    # Get the first value for the key 'q' in the URL query parameters
+    encoded_query = url_query.get('q', [None])[0]
+
+    if not encoded_query:
+        # If the key 'q' is not present or the value is None, show an error
+        st.error("Encoded query parameter 'q' not found.")
+        st.stop()
+    
+    try:
+        # Decode the base64-encoded query parameter
+        decoded_query = base64.b64decode(encoded_query).decode('utf-8')
+        
+        # Split the decoded query string into key-value pairs
+        key_value_pairs = decoded_query.split('&')
+        
+        # Initialize a dictionary to hold the decoded parameters
+        decoded_params = {}
+
+        # Decode each key-value pair
+        for pair in key_value_pairs:
+            # Split each pair at the equals sign
+            encoded_key, encoded_value = pair.split('=')
+            
+            # Decode the key and value from base64
+            key = base64.b64decode(encoded_key).decode('utf-8')
+            value = base64.b64decode(encoded_value).decode('utf-8')
+            
+            # Add the decoded key and value to the dictionary
+            decoded_params[key] = value
+        
+        # Check if complaint_id key is present in the decoded parameters
+        if 'complaint_id' in decoded_params:
+            return decoded_params['complaint_id']
+        else:
+            st.error("Complaint ID not found in the decoded query parameters.")
+            st.stop()
+    except Exception as e:
+        # Display an error message if decoding fails
+        st.error(f"Error decoding query parameters: {e}")
+        st.stop()
+
+# Use the function to decode the complaint ID from the URL query parameters
+complaint_id_decoded = decode_complaint_id_from_query()
 
 # Function to submit feedback and handle API request
 def submit_feedback(complaint_id, engineer_review, coordinator_review):
@@ -94,12 +130,6 @@ def save_feedback_to_api(complaint_id, engineer_review, engineer_rating, coordin
     else:
         st.error('Failed to submit feedback. Please try again later.')
 
-# Read the URL query parameters
-url_query = st.experimental_get_query_params()
-
-# Decode the complaint ID from the URL query parameters
-complaint_id_decoded = decode_complaint_id_from_url(url_query)
-
 # Style the feedback form
 def style_feedback_form(complaint_id):
     # Add logo with increased size
@@ -147,3 +177,4 @@ if submit_button:
     # Submit feedback and handle API request
     if complaint_id_decoded:
         submit_feedback(complaint_id_decoded, engineer_review, coordinator_review)
+
