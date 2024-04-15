@@ -5,8 +5,8 @@ from textblob import TextBlob
 
 # Function to decode the complaint ID from the URL query parameters
 def decode_complaint_id_from_url():
-    # Get query parameters from the URL
-    query_params = st.experimental_get_query_params()
+    # Get query parameters from the URL using st.query_params
+    query_params = st.query_params
 
     # Iterate through the query parameters
     for encoded_key, value_list in query_params.items():
@@ -139,3 +139,4 @@ def main():
 # Run the Streamlit app
 if __name__=="__main__":
     main()
+
