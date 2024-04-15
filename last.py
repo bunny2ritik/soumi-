@@ -1,50 +1,41 @@
 import streamlit as st
-import base64
 import requests
 from textblob import TextBlob
+import base64
 
 # Function to decode the complaint ID from the URL query parameters
-def decode_complaint_id_from_url():
-    # Get query parameters from the URL using st.query_params
-    query_params = st.query_params
-
-    # Iterate through the query parameters
-    for encoded_key, value_list in query_params.items():
-        try:
-            # Attempt to base64 decode the key
-            decoded_key = base64.b64decode(encoded_key).decode('utf-8')
-        except base64.binascii.Error as e:
-            # Handle errors in base64 decoding
-            st.error(f"Error decoding parameter name: Incorrect padding. Please check the URL format.")
-            return None
-        except Exception as e:
-            # Handle other exceptions
-            st.error(f"Error decoding parameter name: {e}")
-            return None
-
-        # Check if the decoded key is 'q'
-        if decoded_key == 'q':
-            # Get the encoded complaint ID from the value list (first element)
-            encoded_complaint_id = value_list[0]
-
+def decode_complaint_id_from_url(url_query):
+    if url_query:
+        complaint_id_encoded = url_query.get('q', [''])[0]
+        if complaint_id_encoded:
             try:
-                # Decode the base64-encoded complaint ID to obtain the original complaint ID
-                decoded_complaint_id_bytes = base64.b64decode(encoded_complaint_id)
-                complaint_id = decoded_complaint_id_bytes.decode('utf-8')
-                return complaint_id
-
-            except base64.binascii.Error:
-                # Handle errors in base64 decoding
-                st.error(f"Error decoding complaint ID: Incorrect padding. Please check the URL format.")
-                return None
+                complaint_id_decoded = base64.b64decode(complaint_id_encoded).decode('utf-8')
+                return complaint_id_decoded
             except Exception as e:
-                # Handle other exceptions
-                st.error(f"Error decoding complaint ID: {e}")
-                return None
-
-    # If 'q' parameter is not found, or if there is an error decoding the ID
+                st.error("Error decoding complaint ID: {}".format(e))
+                st.stop()
     st.error("Complaint ID not found in URL query parameters.")
-    return None
+    st.stop()
+
+# Function to submit feedback and handle API request
+def submit_feedback(complaint_id, engineer_review, coordinator_review):
+    # Perform sentiment analysis for engineer review
+    engineer_sentiment = perform_sentiment_analysis(engineer_review)
+
+    # Perform sentiment analysis for coordinator review
+    coordinator_sentiment = perform_sentiment_analysis(coordinator_review)
+
+    # Derive ratings from sentiment analysis
+    engineer_rating = derive_rating(engineer_sentiment)
+    coordinator_rating = derive_rating(coordinator_sentiment)
+
+    # Save the feedback to the API database
+    save_feedback_to_api(complaint_id, engineer_review, engineer_rating, coordinator_review, coordinator_rating, engineer_sentiment, coordinator_sentiment)
+    
+    # Display sentiment analysis results
+    st.header('Sentiment Analysis Results:')
+    st.write('Service Engineer Review Sentiment:', engineer_sentiment)
+    st.write('Service Executive Coordinator Review Sentiment:', coordinator_sentiment)
 
 # Function to perform sentiment analysis using TextBlob
 def perform_sentiment_analysis(review_text):
@@ -61,91 +52,98 @@ def perform_sentiment_analysis(review_text):
     else:
         return 'Excellent'
 
-# Function to derive ratings from sentiment categories
-def derive_rating(sentiment_category):
-    if sentiment_category == 'Very Bad':
+# Function to derive ratings from sentiment polarity score
+def derive_rating(sentiment_score):
+    if sentiment_score == 'Very Bad':
         return 1.0
-    elif sentiment_category == 'Bad':
+    elif sentiment_score == 'Bad':
         return 2.5
-    elif sentiment_category == 'Good':
+    elif sentiment_score == 'Good':
         return 4.0
-    else:  # 'Excellent'
+    else:
         return 5.0
 
-# Function to submit feedback and handle API request
-def submit_feedback(complaint_id, engineer_review, coordinator_review):
-    # Perform sentiment analysis for engineer review
-    engineer_sentiment = perform_sentiment_analysis(engineer_review)
-    engineer_rating = derive_rating(engineer_sentiment)
-
-    # Perform sentiment analysis for coordinator review
-    coordinator_sentiment = perform_sentiment_analysis(coordinator_review)
-    coordinator_rating = derive_rating(coordinator_sentiment)
-
-    # API data to submit feedback
+# Function to save feedback data to API
+def save_feedback_to_api(complaint_id, engineer_review, engineer_rating, coordinator_review, coordinator_rating, engineer_sentiment, coordinator_sentiment):
+    # Feedback data including complaint ID
     feedback_data = {
         'apiKey': 'RnVqaXlhbWEgUG93ZXIgU3lzdGVtcyBQdnQuIEx0ZC4=.$2y$10$sd9eji2d1mc8i1nd1xsalefYiroiLa46/X0U9ihoGeOU7FaWDg30a.',
         'complaint_id': complaint_id,
         'engineer_feedback': {
             'feedback': engineer_review,
             'rating': engineer_rating,
-            'output': engineer_sentiment
+            'output': perform_sentiment_analysis(engineer_review)
         },
-        'coordinator_feedback': {
+        'coordinator_feedback':  {
+            'complaint_id': complaint_id,
             'feedback': coordinator_review,
             'rating': coordinator_rating,
-            'output': coordinator_sentiment
+            'output': perform_sentiment_analysis(coordinator_review)
         }
     }
 
     # API endpoint
     api_url = 'https://staging.utlsolar.net/tracker/production/public/utlmtlapis/getCustomerFeedback'
 
-    # Send POST request to the API
+    # Make a POST request to the API endpoint
     response = requests.post(api_url, json=feedback_data)
 
-    # Check response and provide feedback to user
+    # Check if the request was successful
     if response.status_code == 200:
         st.success('Feedback submitted successfully!')
     else:
         st.error('Failed to submit feedback. Please try again later.')
 
-# Style and layout of the feedback form
+# Read the URL query parameters
+url_query = st.experimental_get_query_params()
+
+# Decode the complaint ID from the URL query parameters
+complaint_id_decoded = decode_complaint_id_from_url(url_query)
+
+# Style the feedback form
 def style_feedback_form(complaint_id):
-    # Add logo
+    # Add logo with increased size
     logo_image = "https://github.com/bunny2ritik/Utl-feedback/blob/main/newlogo.png?raw=true"  # Path to your logo image
-    st.image(logo_image, use_column_width=True)
+    st.image(logo_image, use_column_width=True, width=400)
+    
+    # Display the title for the complaint ID without quotation marks
+    st.markdown(f"<h3 style='text-align: center;'>Feedback for Complaint ID : {complaint_id}</h3>", unsafe_allow_html=True)
 
-    # Display the title for the complaint ID
-    st.markdown(f"<h3 style='text-align: center;'>Feedback for Complaint ID: {complaint_id}</h3>", unsafe_allow_html=True)
+    # Set title for service engineer section
+    st.header('Service Engineer ')
 
-    # Engineer review input
-    st.header('Service Engineer')
+    # Add text area for engineer feedback
     engineer_review = st.text_area('Write your feedback for the Service Engineer here:')
 
-    # Coordinator review input
-    st.header('Service Executive Coordinator')
+    # Set title for service coordinator section
+    st.header('Service Executive Coordinator' )
+
+    # Add text area for coordinator feedback
     coordinator_review = st.text_area('Write your feedback for the Service Executive Coordinator here:')
 
     return engineer_review, coordinator_review
 
-# Main application code
-def main():
-    # Decode complaint ID from the URL query parameters
-    complaint_id_decoded = decode_complaint_id_from_url()
+# Style the feedback form
+engineer_review, coordinator_review = style_feedback_form(complaint_id_decoded)
 
-    # Ensure complaint_id_decoded is not None before proceeding
+# Add a submit button with custom style
+submit_button_style = """
+    <style>
+        div.stButton > button:first-child {
+            background-color: #4CAF50; /* Green */
+            color: white;
+        }
+    </style>
+"""
+
+# Inject the submit button style into the Streamlit app
+st.markdown(submit_button_style, unsafe_allow_html=True)
+
+# Add a submit button
+submit_button = st.button('Submit')
+
+# Submit feedback and handle API request
+if submit_button:
+    # Submit feedback and handle API request
     if complaint_id_decoded:
-        # Style the feedback form
-        engineer_review, coordinator_review = style_feedback_form(complaint_id_decoded)
-        
-        # Add a submit button
-        submit_button = st.button('Submit')
-
-        # If the submit button is clicked, handle the submission
-        if submit_button:
-            submit_feedback(complaint_id_decoded, engineer_review, coordinator_review)
-
-# Run the Streamlit app
-if __name__=="__main__":
-    main()
+        submit_feedback(complaint_id_decoded, engineer_review, coordinator_review)
