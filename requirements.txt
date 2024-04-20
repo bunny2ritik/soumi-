@@ -4,3 +4,4 @@
 st
 textblob
  matplotlib
+seaborn
