@@ -149,19 +149,15 @@ def main():
         if submit_button:
             engineer_sentiment, coordinator_sentiment = submit_feedback(complaint_id_decoded, engineer_review, coordinator_review)
             if engineer_sentiment and coordinator_sentiment:
-                # Show sentiment analysis results using graphics
-                fig, ax = plt.subplots(1, 2, figsize=(12, 6))
-                sns.countplot([engineer_sentiment], ax=ax[0], palette='pastel')
-                ax[0].set_title('Service Engineer Sentiment')
-                ax[0].set_xlabel('Sentiment')
-                ax[0].set_ylabel('Count')
+                # Show sentiment analysis results using bar charts
+                st.write('### Sentiment Analysis Results:')
+                st.write('#### Service Engineer Sentiment')
+                sns.countplot([engineer_sentiment], palette='pastel')
+                st.pyplot()
 
-                sns.countplot([coordinator_sentiment], ax=ax[1], palette='pastel')
-                ax[1].set_title('Service Executive Coordinator Sentiment')
-                ax[1].set_xlabel('Sentiment')
-                ax[1].set_ylabel('Count')
-
-                st.pyplot(fig)
+                st.write('#### Service Executive Coordinator Sentiment')
+                sns.countplot([coordinator_sentiment], palette='pastel')
+                st.pyplot()
 
 # Run the Streamlit app
 if __name__ == "__main__":
