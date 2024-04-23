@@ -91,7 +91,7 @@ def submit_feedback(complaint_id, engineer_review, coordinator_review):
 
     # API data to submit feedback
     feedback_data = {
-        'apiKey': 'RnVqaXlhbWEgUG93ZXIgU3lzdGVtcyBQdnQuIEx0ZC4=.$2y$10$sd9eji2d1mc8i1nd1xsalefYiroiLa46/X0U9ihoGeOU7FaWDg30a.',
+        'apiKey': 'Your_API_Key_Here',
         'complaint_id': complaint_id,
         'engineer_feedback': {
             'feedback': engineer_review,
@@ -106,7 +106,7 @@ def submit_feedback(complaint_id, engineer_review, coordinator_review):
     }
 
     # API endpoint for production
-    api_url = 'https://tracker.utlsolar.net/tracker/production/public/utlmtlapis/getCustomerFeedback'
+    api_url = 'https://your_api_endpoint_here'
 
     # Send POST request to the API
     response = requests.post(api_url, json=feedback_data)
@@ -160,4 +160,3 @@ def main():
 # Run the Streamlit app
 if __name__ == "__main__":
     main()
-
