@@ -23,8 +23,11 @@ st.markdown(hide_elements_style, unsafe_allow_html=True)
 
 # Function to decode the complaint ID from the URL query parameters
 def decode_complaint_id_from_url():
-    # Get query parameters from the URL
-    query_params = st.experimental_get_query_params()
+    # Get current URL
+    current_url = st.url
+
+    # Extract the 'q' parameter from the URL
+    query_params = st.experimental_get_query_params(current_url)
 
     # Access the 'q' parameter, if present
     if 'q' in query_params:
