@@ -24,10 +24,10 @@ st.markdown(hide_elements_style, unsafe_allow_html=True)
 # Function to decode the complaint ID from the URL query parameters
 def decode_complaint_id_from_url():
     # Get current URL
-    current_url = st.url
-
-    # Extract the 'q' parameter from the URL
-    query_params = st.experimental_get_query_params(current_url)
+    query_string = st.experimental_get_query_string()
+    
+    # Extract the 'q' parameter from the URL query string
+    query_params = st.experimental_get_query_params(query_string)
 
     # Access the 'q' parameter, if present
     if 'q' in query_params:
@@ -158,3 +158,4 @@ def main():
 # Run the Streamlit app
 if __name__ == "__main__":
     main()
+
