@@ -2,31 +2,11 @@ import streamlit as st
 import base64
 import requests
 from textblob import TextBlob
-import matplotlib.pyplot as plt
-import seaborn as sns
-
-# Add custom CSS to hide Streamlit elements except the submit button
-hide_elements_style = """
-            <style>
-            #MainMenu {visibility: hidden;}
-            footer {visibility: hidden;}
-            div.stButton>button {
-                visibility: visible !important;
-            }
-            div.stDocument > div.stApp > div:nth-child(1) > div:nth-child(2) > div {
-                visibility: hidden;
-            }
-            a[href^="https://github.com/streamlit/"][class^="stAppGotoGithubButton"] {
-                display: none !important;
-            }
-            </style>
-            """
-st.markdown(hide_elements_style, unsafe_allow_html=True) 
 
 # Function to decode the complaint ID from the URL query parameters
 def decode_complaint_id_from_url():
     # Get query parameters from the URL
-    query_params = st.experimental_get_query_params()
+    query_params = st.query_params
 
     # Access the 'q' parameter, if present
     if 'q' in query_params:
@@ -108,10 +88,8 @@ def submit_feedback(complaint_id, engineer_review, coordinator_review):
     # Check response and provide feedback to user
     if response.status_code == 200:
         st.success('Feedback submitted successfully!')
-        return engineer_sentiment, coordinator_sentiment
     else:
         st.error('Failed to submit feedback. Please try again later.')
-        return None, None
 
 # Style and layout of the feedback form
 def style_feedback_form(complaint_id):
@@ -120,7 +98,7 @@ def style_feedback_form(complaint_id):
     st.image(logo_image, use_column_width=True, width=400)
 
     # Display the title for the complaint ID
-    st.markdown(f"<h3 style='text-align: center;'>Feedback for Complaint ID: {complaint_id}</h3>", unsafe_allow_html=True)
+    st.markdown(f"<h3 style='text-align: center;'>Feedback for Complaint ID: {complaint_id.split('=')[1]}</h3>", unsafe_allow_html=True)
 
     # Engineer review input
     st.header('Service Engineer')
@@ -139,6 +117,16 @@ def main():
 
     # Ensure complaint_id_decoded is not None before proceeding
     if complaint_id_decoded:
+        # Hide Streamlit menu and GitHub icon
+        st.markdown(
+            """
+            <style>
+            #MainMenu {visibility: hidden;}
+            footer {visibility: hidden;}
+            </style>
+            """,
+            unsafe_allow_html=True
+        )
         # Style the feedback form
         engineer_review, coordinator_review = style_feedback_form(complaint_id_decoded)
         
@@ -147,17 +135,7 @@ def main():
 
         # If the submit button is clicked, handle the submission
         if submit_button:
-            engineer_sentiment, coordinator_sentiment = submit_feedback(complaint_id_decoded, engineer_review, coordinator_review)
-            if engineer_sentiment and coordinator_sentiment:
-                # Show sentiment analysis results using bar charts
-                st.write('### Sentiment Analysis Results:')
-                st.write('#### Service Engineer Sentiment')
-                sns.countplot([engineer_sentiment], palette='pastel')
-                st.pyplot()
-
-                st.write('#### Service Executive Coordinator Sentiment')
-                sns.countplot([coordinator_sentiment], palette='pastel')
-                st.pyplot()
+            submit_feedback(complaint_id_decoded, engineer_review, coordinator_review)
 
 # Run the Streamlit app
 if __name__ == "__main__":
