@@ -14,6 +14,9 @@ hide_elements_style = """
             div.stDocument > div.stApp > div:nth-child(1) > div:nth-child(2) > div {
                 visibility: hidden;
             }
+            .element-container:hover [data-baseweb="icon"] {
+                visibility: hidden !important;
+            }
             a[href^="https://github.com/streamlit/"][class^="stAppGotoGithubButton"] {
                 display: none !important;
             }
@@ -157,4 +160,3 @@ def main():
 # Run the Streamlit app
 if __name__ == "__main__":
     main()
-
