@@ -98,7 +98,7 @@ def style_feedback_form(complaint_id):
     st.image(logo_image, use_column_width=True, width=400)
 
     # Display the title for the complaint ID
-    st.markdown(f"<h3 style='text-align: center;'>Feedback for Complaint ID: {complaint_id.split('=')[1]}</h3>", unsafe_allow_html=True)
+    st.markdown(f"<h3 style='text-align: center;'>Feedback for Complaint ID: {complaint_id.split('=')[-1]}</h3>", unsafe_allow_html=True)
 
     # Engineer review input
     st.header('Service Engineer')
