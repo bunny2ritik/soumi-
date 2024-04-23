@@ -3,22 +3,40 @@ import base64
 import requests
 from textblob import TextBlob
 
+# Add custom CSS to hide Streamlit elements except the submit button
+hide_elements_style = """
+            <style>
+            #MainMenu {visibility: hidden;}
+            footer {visibility: hidden;}
+            div.stButton>button {
+                visibility: visible !important;
+            }
+            div.stDocument > div.stApp > div:nth-child(1) > div:nth-child(2) > div {
+                visibility: hidden;
+            }
+            a[href^="https://github.com/streamlit/"][class^="stAppGotoGithubButton"] {
+                display: none !important;
+            }
+            </style>
+            """
+st.markdown(hide_elements_style, unsafe_allow_html=True) 
+
 # Function to decode the complaint ID from the URL query parameters
 def decode_complaint_id_from_url():
     # Get query parameters from the URL
-    query_params = st.query_params
+    query_params = st.experimental_get_query_params()
 
     # Access the 'q' parameter, if present
     if 'q' in query_params:
         # The 'q' parameter value is returned as a list, so we take the first element
         encoded_complaint_id = query_params['q'][0]
+        
+        # Extract the complaint ID portion after '=' character
+        complaint_id = encoded_complaint_id.split('=')[1]
 
         try:
-            # Ensure proper padding of the base64-encoded string
-            encoded_complaint_id += '=' * ((4 - len(encoded_complaint_id) % 4) % 4)
-
             # Decode the base64-encoded string to obtain the original complaint ID
-            decoded_bytes = base64.b64decode(encoded_complaint_id)
+            decoded_bytes = base64.b64decode(complaint_id)
             complaint_id = decoded_bytes.decode('utf-8')
             return complaint_id
 
@@ -26,7 +44,7 @@ def decode_complaint_id_from_url():
             st.error(f"Error decoding complaint ID: {e}")
             return None
 
-    # If 'q' parameter is not found
+    # If 'q' parameter is not found, or if there is an error decoding the ID
     st.error("Complaint ID not found in URL query parameters.")
     return None
 
@@ -91,6 +109,10 @@ def submit_feedback(complaint_id, engineer_review, coordinator_review):
     # Check response and provide feedback to user
     if response.status_code == 200:
         st.success('Feedback submitted successfully!')
+        # Show sentiment analysis results
+        st.write('### Sentiment Analysis Results:')
+        st.write(f'- **Service Engineer Sentiment:** {engineer_sentiment}')
+        st.write(f'- **Service Executive Coordinator Sentiment:** {coordinator_sentiment}')
     else:
         st.error('Failed to submit feedback. Please try again later.')
 
