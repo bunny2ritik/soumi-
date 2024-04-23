@@ -22,34 +22,28 @@ hide_elements_style = """
 st.markdown(hide_elements_style, unsafe_allow_html=True) 
 
 # Function to decode the complaint ID from the URL query parameters
+# Function to decode the complaint ID from the URL query parameters
 def decode_complaint_id_from_url():
-    # Get query parameters from the URL
-    query_params = st.experimental_get_query_params()
+    # Get the full URL from the browser
+    full_url = st.experimental_get_query_string()
 
-    # Access the 'q' parameter, if present
-    if 'q' in query_params:
-        # The 'q' parameter value is returned as a list, so we take the first element
-        encoded_complaint_id = query_params['q'][0]
+    # Extract the query string after the question mark
+    query_string = full_url.split('?')[-1]
 
-        try:
-            # Decode the base64-encoded string to obtain the original complaint ID
-            decoded_bytes = base64.b64decode(encoded_complaint_id)
-            complaint_id = decoded_bytes.decode('utf-8')
+    try:
+        # Decode the base64-encoded string to obtain the original complaint ID
+        decoded_bytes = base64.b64decode(query_string)
+        complaint_id = decoded_bytes.decode('utf-8')
 
-            # Extract only the complaint ID value without the parameter name
-            if complaint_id.startswith('complaintId='):
-                complaint_id = complaint_id.replace('complaintId=', '')
+        return complaint_id
 
-            return complaint_id
+    except Exception as e:
+        st.error(f"Error decoding complaint ID: {e}")
+        return None
 
-        except Exception as e:
-            st.error(f"Error decoding complaint ID: {e}")
-            return None
-
-    # If 'q' parameter is not found, or if there is an error decoding the ID
+    # If 'complainId' parameter is not found, or if there is an error decoding the ID
     st.error("Complaint ID not found in URL query parameters.")
     return None
-
 # Function to perform sentiment analysis using TextBlob
 def perform_sentiment_analysis(review_text):
     sentiment_analysis = TextBlob(review_text).sentiment
@@ -115,9 +109,6 @@ def submit_feedback(complaint_id, engineer_review, coordinator_review):
         st.write('### Sentiment Analysis Results:')
         st.write(f'- **Service Engineer Sentiment:** {engineer_sentiment}')
         st.write(f'- **Service Executive Coordinator Sentiment:** {coordinator_sentiment}')
-        # Show payload data
-        st.write('### Payload:')
-        st.write(feedback_data)
     else:
         st.error('Failed to submit feedback. Please try again later.')
 
@@ -160,4 +151,3 @@ def main():
 # Run the Streamlit app
 if __name__ == "__main__":
     main()
-
