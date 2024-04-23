@@ -77,7 +77,7 @@ def derive_rating(sentiment_category):
         return 5.0
 
 # Function to submit feedback and handle API request
-def submit_feedback(complaint_id, engineer_review, coordinator_review, payload):
+def submit_feedback(complaint_id, engineer_review, coordinator_review):
     # Perform sentiment analysis for engineer review
     engineer_sentiment = perform_sentiment_analysis(engineer_review)
     engineer_rating = derive_rating(engineer_sentiment)
@@ -99,8 +99,7 @@ def submit_feedback(complaint_id, engineer_review, coordinator_review, payload):
             'feedback': coordinator_review,
             'rating': coordinator_rating,
             'output': coordinator_sentiment
-        },
-        'payload': payload  # Adding payload data
+        }
     }
 
     # API endpoint
@@ -118,7 +117,7 @@ def submit_feedback(complaint_id, engineer_review, coordinator_review, payload):
         st.write(f'- **Service Executive Coordinator Sentiment:** {coordinator_sentiment}')
         # Show payload data
         st.write('### Payload:')
-        st.write(payload)
+        st.write(feedback_data)
     else:
         st.error('Failed to submit feedback. Please try again later.')
 
@@ -139,11 +138,7 @@ def style_feedback_form(complaint_id):
     st.header('Service Executive Coordinator')
     coordinator_review = st.text_area('Write your feedback for the Service Executive Coordinator here:')
 
-    # Payload input
-    st.header('Payload')
-    payload = st.text_area('Enter your payload here (if applicable):')
-
-    return engineer_review, coordinator_review, payload
+    return engineer_review, coordinator_review
 
 # Main application code
 def main():
@@ -153,15 +148,16 @@ def main():
     # Ensure complaint_id_decoded is not None before proceeding
     if complaint_id_decoded:
         # Style the feedback form
-        engineer_review, coordinator_review, payload = style_feedback_form(complaint_id_decoded)
+        engineer_review, coordinator_review = style_feedback_form(complaint_id_decoded)
         
         # Add a submit button
         submit_button = st.button('Submit')
 
         # If the submit button is clicked, handle the submission
         if submit_button:
-            submit_feedback(complaint_id_decoded, engineer_review, coordinator_review, payload)
+            submit_feedback(complaint_id_decoded, engineer_review, coordinator_review)
 
 # Run the Streamlit app
 if __name__ == "__main__":
     main()
+
