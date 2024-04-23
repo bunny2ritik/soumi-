@@ -23,6 +23,7 @@ st.markdown(hide_elements_style, unsafe_allow_html=True)
 
 # Function to decode the complaint ID from the URL query parameters
 # Function to decode the complaint ID from the URL query parameters
+
 def decode_complaint_id_from_url():
     # Get query parameters from the URL
     query_params = st.experimental_get_query_params()
@@ -37,11 +38,10 @@ def decode_complaint_id_from_url():
             decoded_bytes = base64.b64decode(encoded_complaint_id)
             complaint_id = decoded_bytes.decode('utf-8')
 
-            # Extract only the required portion of the complaint ID
-            if complaint_id.startswith('complaintId='):
-                complaint_id = complaint_id.replace('complaintId=', '')
+            # Extract only the numbers after the colon in the complaint ID
+            numbers_after_colon = ''.join(filter(str.isdigit, complaint_id.split('=')[-1]))
 
-            return complaint_id
+            return numbers_after_colon
 
         except Exception as e:
             st.error(f"Error decoding complaint ID: {e}")
