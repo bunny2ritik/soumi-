@@ -2,7 +2,6 @@ import streamlit as st
 import base64
 import requests
 from textblob import TextBlob
-from urllib.parse import urlparse, parse_qs
 
 # Add custom CSS to hide Streamlit elements except the submit button
 hide_elements_style = """
@@ -23,13 +22,10 @@ hide_elements_style = """
 st.markdown(hide_elements_style, unsafe_allow_html=True) 
 
 # Function to decode the complaint ID from the URL query parameters
+# Function to decode the complaint ID from the URL query parameters
 def decode_complaint_id_from_url():
-    # Get current URL
-    current_url = st.url
-
-    # Parse the URL to extract query parameters
-    parsed_url = urlparse(current_url)
-    query_params = parse_qs(parsed_url.query)
+    # Get query parameters from the URL
+    query_params = st.experimental_get_query_params()
 
     # Access the 'q' parameter, if present
     if 'q' in query_params:
@@ -40,6 +36,11 @@ def decode_complaint_id_from_url():
             # Decode the base64-encoded string to obtain the original complaint ID
             decoded_bytes = base64.b64decode(encoded_complaint_id)
             complaint_id = decoded_bytes.decode('utf-8')
+
+            # Extract only the required portion of the complaint ID
+            if complaint_id.startswith('complaintId='):
+                complaint_id = complaint_id.replace('complaintId=', '')
+
             return complaint_id
 
         except Exception as e:
