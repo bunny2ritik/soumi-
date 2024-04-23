@@ -14,8 +14,11 @@ def decode_complaint_id_from_url():
         encoded_complaint_id = query_params['q'][0]
 
         try:
+            # Ensure the encoded string is properly padded with "=" characters
+            padded_encoded_complaint_id = encoded_complaint_id + '=' * (-len(encoded_complaint_id) % 4)
+
             # Decode the base64-encoded string to obtain the original complaint ID
-            decoded_bytes = base64.b64decode(encoded_complaint_id)
+            decoded_bytes = base64.b64decode(padded_encoded_complaint_id)
             complaint_id = decoded_bytes.decode('utf-8')
             return complaint_id
 
@@ -23,7 +26,7 @@ def decode_complaint_id_from_url():
             st.error(f"Error decoding complaint ID: {e}")
             return None
 
-    # If 'q' parameter is not found, or if there is an error decoding the ID
+    # If 'q' parameter is not found
     st.error("Complaint ID not found in URL query parameters.")
     return None
 
