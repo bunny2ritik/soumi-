@@ -17,8 +17,8 @@ hide_elements_style = """
             .element-container:hover [data-baseweb="icon"] {
                 visibility: hidden !important;
             }
-            a[href^="https://github.com/streamlit/"][class^="stAppGotoGithubButton"] {
-                display: none !important;
+            .stMarkdown a, .stMarkdown a:hover {
+                text-decoration: none;
             }
             </style>
             """
@@ -160,3 +160,4 @@ def main():
 # Run the Streamlit app
 if __name__ == "__main__":
     main()
+
