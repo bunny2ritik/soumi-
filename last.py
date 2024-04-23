@@ -20,35 +20,30 @@ hide_elements_style = """
             </style>
             """
 st.markdown(hide_elements_style, unsafe_allow_html=True) 
+
+# Function to decode the complaint ID from the URL query parameters
 # Function to decode the complaint ID from the URL query parameters
 def decode_complaint_id_from_url():
-    # Get query parameters from the URL
-    query_params = st.experimental_get_query_params()
+    # Get the full URL from the browser
+    full_url = st.experimental_get_query_string()
 
-    # Access the 'q' parameter, if present
-    if 'q' in query_params:
-        # The 'q' parameter value is returned as a list, so we take the first element
-        encoded_complaint_id = query_params['q'][0]
+    # Extract the query string after the question mark
+    query_string = full_url.split('?')[-1]
 
-        try:
-            # Decode the base64-encoded string to obtain the original complaint ID
-            decoded_bytes = base64.b64decode(encoded_complaint_id)
-            complaint_id = decoded_bytes.decode('utf-8')
+    try:
+        # Decode the base64-encoded string to obtain the original complaint ID
+        decoded_bytes = base64.b64decode(query_string)
+        complaint_id = decoded_bytes.decode('utf-8')
 
-            # Extract only the complaint ID value without the parameter name
-            if complaint_id.startswith('complaintId='):
-                complaint_id = complaint_id.replace('complaintId=', '')
+        return complaint_id
 
-            return complaint_id
+    except Exception as e:
+        st.error(f"Error decoding complaint ID: {e}")
+        return None
 
-        except Exception as e:
-            st.error(f"Error decoding complaint ID: {e}")
-            return None
-
-    # If 'q' parameter is not found, or if there is an error decoding the ID
+    # If 'complainId' parameter is not found, or if there is an error decoding the ID
     st.error("Complaint ID not found in URL query parameters.")
     return None
-
 # Function to perform sentiment analysis using TextBlob
 def perform_sentiment_analysis(review_text):
     sentiment_analysis = TextBlob(review_text).sentiment
@@ -101,8 +96,8 @@ def submit_feedback(complaint_id, engineer_review, coordinator_review):
         }
     }
 
-    # API endpoint for production
-    api_url = 'https://utl-feedback-uujz3j8mum7sja4mekozbv.streamlit.app/api/feedback'
+    # API endpoint
+    api_url = 'https://staging.utlsolar.net/tracker/production/public/utlmtlapis/getCustomerFeedback'
 
     # Send POST request to the API
     response = requests.post(api_url, json=feedback_data)
@@ -119,6 +114,10 @@ def submit_feedback(complaint_id, engineer_review, coordinator_review):
 
 # Style and layout of the feedback form
 def style_feedback_form(complaint_id):
+    # Add logo with increased size
+    logo_image = "https://imagizer.imageshack.com/img924/4894/eqE4eh.png"  # Path to your logo image
+    st.image(logo_image, use_column_width=True, width=400)
+
     # Display the title for the complaint ID
     st.markdown(f"<h3 style='text-align: center;'>Feedback for Complaint ID: {complaint_id}</h3>", unsafe_allow_html=True)
 
@@ -151,6 +150,4 @@ def main():
 
 # Run the Streamlit app
 if __name__ == "__main__":
-    st.set_page_config(logo=None)
     main()
-
