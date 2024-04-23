@@ -14,11 +14,11 @@ def decode_complaint_id_from_url():
         encoded_complaint_id = query_params['q'][0]
 
         try:
-            # Ensure the encoded string is properly padded with "=" characters
-            padded_encoded_complaint_id = encoded_complaint_id + '=' * (-len(encoded_complaint_id) % 4)
+            # Ensure proper padding of the base64-encoded string
+            encoded_complaint_id += '=' * ((4 - len(encoded_complaint_id) % 4) % 4)
 
             # Decode the base64-encoded string to obtain the original complaint ID
-            decoded_bytes = base64.b64decode(padded_encoded_complaint_id)
+            decoded_bytes = base64.b64decode(encoded_complaint_id)
             complaint_id = decoded_bytes.decode('utf-8')
             return complaint_id
 
@@ -101,7 +101,7 @@ def style_feedback_form(complaint_id):
     st.image(logo_image, use_column_width=True, width=400)
 
     # Display the title for the complaint ID
-    st.markdown(f"<h3 style='text-align: center;'>Feedback for Complaint ID: {complaint_id.split('=')[-1]}</h3>", unsafe_allow_html=True)
+    st.markdown(f"<h3 style='text-align: center;'>Feedback for Complaint ID: {complaint_id}</h3>", unsafe_allow_html=True)
 
     # Engineer review input
     st.header('Service Engineer')
@@ -120,16 +120,6 @@ def main():
 
     # Ensure complaint_id_decoded is not None before proceeding
     if complaint_id_decoded:
-        # Hide Streamlit menu and GitHub icon
-        st.markdown(
-            """
-            <style>
-            #MainMenu {visibility: hidden;}
-            footer {visibility: hidden;}
-            </style>
-            """,
-            unsafe_allow_html=True
-        )
         # Style the feedback form
         engineer_review, coordinator_review = style_feedback_form(complaint_id_decoded)
         
