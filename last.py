@@ -22,9 +22,6 @@ hide_elements_style = """
 st.markdown(hide_elements_style, unsafe_allow_html=True) 
 
 # Function to decode the complaint ID from the URL query parameters
-# Function to decode the complaint ID from the URL query parameters
-
-
 def decode_complaint_id_from_url():
     # Get query parameters from the URL
     query_params = st.experimental_get_query_params()
@@ -52,6 +49,7 @@ def decode_complaint_id_from_url():
     # If 'q' parameter is not found, or if there is an error decoding the ID
     st.error("Complaint ID not found in URL query parameters.")
     return None
+
 # Function to perform sentiment analysis using TextBlob
 def perform_sentiment_analysis(review_text):
     sentiment_analysis = TextBlob(review_text).sentiment
@@ -79,7 +77,7 @@ def derive_rating(sentiment_category):
         return 5.0
 
 # Function to submit feedback and handle API request
-def submit_feedback(complaint_id, engineer_review, coordinator_review):
+def submit_feedback(complaint_id, engineer_review, coordinator_review, payload):
     # Perform sentiment analysis for engineer review
     engineer_sentiment = perform_sentiment_analysis(engineer_review)
     engineer_rating = derive_rating(engineer_sentiment)
@@ -101,7 +99,8 @@ def submit_feedback(complaint_id, engineer_review, coordinator_review):
             'feedback': coordinator_review,
             'rating': coordinator_rating,
             'output': coordinator_sentiment
-        }
+        },
+        'payload': payload  # Adding payload data
     }
 
     # API endpoint
@@ -137,7 +136,11 @@ def style_feedback_form(complaint_id):
     st.header('Service Executive Coordinator')
     coordinator_review = st.text_area('Write your feedback for the Service Executive Coordinator here:')
 
-    return engineer_review, coordinator_review
+    # Payload input
+    st.header('Payload')
+    payload = st.text_area('Enter your payload here (if applicable):')
+
+    return engineer_review, coordinator_review, payload
 
 # Main application code
 def main():
@@ -147,14 +150,14 @@ def main():
     # Ensure complaint_id_decoded is not None before proceeding
     if complaint_id_decoded:
         # Style the feedback form
-        engineer_review, coordinator_review = style_feedback_form(complaint_id_decoded)
+        engineer_review, coordinator_review, payload = style_feedback_form(complaint_id_decoded)
         
         # Add a submit button
         submit_button = st.button('Submit')
 
         # If the submit button is clicked, handle the submission
         if submit_button:
-            submit_feedback(complaint_id_decoded, engineer_review, coordinator_review)
+            submit_feedback(complaint_id_decoded, engineer_review, coordinator_review, payload)
 
 # Run the Streamlit app
 if __name__ == "__main__":
