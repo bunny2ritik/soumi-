@@ -116,6 +116,9 @@ def submit_feedback(complaint_id, engineer_review, coordinator_review, payload):
         st.write('### Sentiment Analysis Results:')
         st.write(f'- **Service Engineer Sentiment:** {engineer_sentiment}')
         st.write(f'- **Service Executive Coordinator Sentiment:** {coordinator_sentiment}')
+        # Show payload data
+        st.write('### Payload:')
+        st.write(payload)
     else:
         st.error('Failed to submit feedback. Please try again later.')
 
