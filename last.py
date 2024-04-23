@@ -103,7 +103,7 @@ def submit_feedback(complaint_id, engineer_review, coordinator_review):
     }
 
     # API endpoint for production
-    api_url = 'https://tracker.utlsolar.net/tracker/production/public/utlmtlapis/getCustomerFeedback'
+    api_url = 'https://utl-feedback-uujz3j8mum7sja4mekozbv.streamlit.app/api/feedback'
 
     # Send POST request to the API
     response = requests.post(api_url, json=feedback_data)
@@ -115,18 +115,11 @@ def submit_feedback(complaint_id, engineer_review, coordinator_review):
         st.write('### Sentiment Analysis Results:')
         st.write(f'- **Service Engineer Sentiment:** {engineer_sentiment}')
         st.write(f'- **Service Executive Coordinator Sentiment:** {coordinator_sentiment}')
-        # Show payload data
-        st.write('### Payload:')
-        st.write(feedback_data)
     else:
         st.error('Failed to submit feedback. Please try again later.')
 
 # Style and layout of the feedback form
 def style_feedback_form(complaint_id):
-    # Add logo with increased size
-    logo_image = "https://imagizer.imageshack.com/img924/4894/eqE4eh.png"  # Path to your logo image
-    st.image(logo_image, use_column_width=True, width=400)
-
     # Display the title for the complaint ID
     st.markdown(f"<h3 style='text-align: center;'>Feedback for Complaint ID: {complaint_id}</h3>", unsafe_allow_html=True)
 
@@ -159,4 +152,6 @@ def main():
 
 # Run the Streamlit app
 if __name__ == "__main__":
+    st.set_page_config(logo=None)
     main()
+
