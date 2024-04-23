@@ -24,6 +24,9 @@ st.markdown(hide_elements_style, unsafe_allow_html=True)
 # Function to decode the complaint ID from the URL query parameters
 # Function to decode the complaint ID from the URL query parameters
 
+import streamlit as st
+import base64
+
 def decode_complaint_id_from_url():
     # Get query parameters from the URL
     query_params = st.experimental_get_query_params()
@@ -38,15 +41,15 @@ def decode_complaint_id_from_url():
             decoded_bytes = base64.b64decode(encoded_complaint_id)
             complaint_id = decoded_bytes.decode('utf-8')
 
+            # Hide the prefix "complaintId=" from the complaint ID
+            if complaint_id.startswith('complaintId='):
+                complaint_id = complaint_id.replace('complaintId=', '')
+
             return complaint_id
 
         except Exception as e:
             st.error(f"Error decoding complaint ID: {e}")
             return None
-
-    # If 'q' parameter is not found, or if there is an error decoding the ID
-    st.error("Complaint ID not found in URL query parameters.")
-    return None
 
     # If 'q' parameter is not found, or if there is an error decoding the ID
     st.error("Complaint ID not found in URL query parameters.")
