@@ -12,8 +12,6 @@ hide_st_style = """
             div.embeddedAppMetaInfoBar_container__DxxL1 {visibility: hidden;}
             </style>
             """
-st.markdown(hide_st_style, unsafe_allow_html=True)
-st.markdown(hide_elements_style, unsafe_allow_html=True) 
 
 # Function to decode the complaint ID from the URL query parameters
 def decode_complaint_id_from_url():
