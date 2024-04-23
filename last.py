@@ -38,14 +38,15 @@ def decode_complaint_id_from_url():
             decoded_bytes = base64.b64decode(encoded_complaint_id)
             complaint_id = decoded_bytes.decode('utf-8')
 
-            # Extract only the numbers after the colon in the complaint ID
-            numbers_after_colon = ''.join(filter(str.isdigit, complaint_id.split('=')[-1]))
-
-            return numbers_after_colon
+            return complaint_id
 
         except Exception as e:
             st.error(f"Error decoding complaint ID: {e}")
             return None
+
+    # If 'q' parameter is not found, or if there is an error decoding the ID
+    st.error("Complaint ID not found in URL query parameters.")
+    return None
 
     # If 'q' parameter is not found, or if there is an error decoding the ID
     st.error("Complaint ID not found in URL query parameters.")
