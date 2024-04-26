@@ -14,11 +14,8 @@ hide_elements_style = """
             div.stDocument > div.stApp > div:nth-child(1) > div:nth-child(2) > div {
                 visibility: hidden;
             }
-            .element-container:hover [data-baseweb="icon"] {
-                visibility: hidden !important;
-            }
-            .stMarkdown a, .stMarkdown a:hover {
-                text-decoration: none;
+            a[href^="https://github.com/streamlit/"][class^="stAppGotoGithubButton"] {
+                display: none !important;
             }
             </style>
             """
@@ -91,7 +88,7 @@ def submit_feedback(complaint_id, engineer_review, coordinator_review):
 
     # API data to submit feedback
     feedback_data = {
-        'apiKey': 'Your_API_Key_Here',
+        'apiKey': 'RnVqaXlhbWEgUG93ZXIgU3lzdGVtcyBQdnQuIEx0ZC4=.$2y$10$sd9eji2d1mc8i1nd1xsalefYiroiLa46/X0U9ihoGeOU7FaWDg30a.',
         'complaint_id': complaint_id,
         'engineer_feedback': {
             'feedback': engineer_review,
@@ -106,7 +103,7 @@ def submit_feedback(complaint_id, engineer_review, coordinator_review):
     }
 
     # API endpoint for production
-    api_url = 'https://your_api_endpoint_here'
+    api_url = 'https://tracker.utlsolar.net/tracker/production/public/utlmtlapis/getCustomerFeedback'
 
     # Send POST request to the API
     response = requests.post(api_url, json=feedback_data)
