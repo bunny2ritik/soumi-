@@ -5,3 +5,4 @@ st
 textblob
  matplotlib
 seaborn
+ streamlit streamlit-labs lit_runner
