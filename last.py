@@ -6,6 +6,15 @@ from textblob import TextBlob
 
 # Add custom CSS to hide Streamlit elements except the submit button
 
+hide_svg_style = """
+<style>
+.viewerBadge_link__qRIco {
+    display: none !important;
+}
+</style>
+"""
+st.markdown(hide_svg_style, unsafe_allow_html=True)
+
 hide_elements_style = """
 <style>
 #MainMenu {visibility: hidden;}
