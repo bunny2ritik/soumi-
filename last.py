@@ -1,7 +1,29 @@
+
 import streamlit as st
 import base64
 import requests
 from textblob import TextBlob
+
+# Add custom CSS to hide Streamlit elements except the submit button
+
+hide_elements_style = """
+<style>
+#MainMenu {visibility: hidden;}
+footer {visibility: hidden;}
+div.stButton>button {
+    visibility: visible !important;
+}
+div.stDocument > div.stApp > div:nth-child(1) > div:nth-child(2) > div {
+    visibility: hidden;
+}
+a[href^="https://github.com/streamlit/"][class^="stAppGotoGithubButton"] {
+    display: none !important;
+}
+.stAppWrapper {visibility: hidden;}
+</style>
+"""
+st.markdown(hide_elements_style, unsafe_allow_html=True)
+
 
 # Function to decode the complaint ID from the URL query parameters
 def decode_complaint_id_from_url():
@@ -100,6 +122,25 @@ def submit_feedback(complaint_id, engineer_review, coordinator_review):
     else:
         st.error('Failed to submit feedback. Please try again later.')
 
+# Style and layout of the feedback form
+def style_feedback_form(complaint_id):
+    # Add logo with increased size
+    logo_image = "https://imagizer.imageshack.com/img924/4894/eqE4eh.png"  # Path to your logo image
+    st.image(logo_image, use_column_width=True, width=400)
+
+    # Display the title for the complaint ID
+    st.markdown(f"<h3 style='text-align: center;'>Feedback for Complaint ID: {complaint_id}</h3>", unsafe_allow_html=True)
+
+    # Engineer review input
+    st.header('Service Engineer')
+    engineer_review = st.text_area('Write your feedback for the Service Engineer here:')
+
+    # Coordinator review input
+    st.header('Service Executive Coordinator')
+    coordinator_review = st.text_area('Write your feedback for the Service Executive Coordinator here:')
+
+    return engineer_review, coordinator_review
+
 # Main application code
 def main():
     # Decode complaint ID from the URL query parameters
@@ -107,33 +148,15 @@ def main():
 
     # Ensure complaint_id_decoded is not None before proceeding
     if complaint_id_decoded:
-        # Display the title for the complaint ID
-        st.title(f"Feedback for Complaint ID: {complaint_id_decoded}")
-
-        # Engineer review input
-        st.header('Service Engineer')
-        engineer_review = st.text_area('Write your feedback for the Service Engineer here:')
-
-        # Coordinator review input
-        st.header('Service Executive Coordinator')
-        coordinator_review = st.text_area('Write your feedback for the Service Executive Coordinator here:')
-
+        # Style the feedback form
+        engineer_review, coordinator_review = style_feedback_form(complaint_id_decoded)
+        
         # Add a submit button
         submit_button = st.button('Submit')
 
         # If the submit button is clicked, handle the submission
         if submit_button:
             submit_feedback(complaint_id_decoded, engineer_review, coordinator_review)
-
-        # Add custom CSS to hide the Streamlit footer
-        hide_footer_style = """
-        <style>
-        .viewerBadge_container__1QSob {
-            display: none !important;
-        }
-        </style>
-        """
-        st.markdown(hide_footer_style, unsafe_allow_html=True)
 
 # Run the Streamlit app
 if __name__ == "__main__":
