@@ -1,1 +1,7 @@
+
+streamlit
+requests
+TextBlob
+matplotlib
+seaborn
 punkt
