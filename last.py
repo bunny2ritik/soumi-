@@ -3,23 +3,25 @@ import base64
 import requests
 from textblob import TextBlob
 
-# Add custom CSS to hide Streamlit elements except the submit button
-hide_elements_style = """
-            <style>
-            #MainMenu {visibility: hidden;}
-            footer {visibility: hidden;}
-            div.stButton>button {
-                visibility: visible !important;
-            }
-            div.stDocument > div.stApp > div:nth-child(1) > div:nth-child(2) > div {
-                visibility: hidden;
-            }
-            a[href^="https://github.com/streamlit/"][class^="stAppGotoGithubButton"] {
-                display: none !important;
-            }
-            </style>
-            """
-st.markdown(hide_elements_style, unsafe_allow_html=True) 
+st.set_page_config(page_title="Page Title", layout="wide")
+4
+5st.markdown("""
+6    <style>
+7        .reportview-container {
+8            margin-top: -2em;
+9        }
+10        #MainMenu {visibility: hidden;}
+11        .stDeployButton {display:none;}
+12        footer {visibility: hidden;}
+13        #stDecoration {display:none;}
+14        a[href^="https://github.com/streamlit/"][class^="stAppGotoGithubButton"] {
+15            display: none !important;
+16        }
+17        a[href^="https://streamlit.io"][class^="stAppGotoStreamlitButton"] {
+18            display: none !important;
+19        }
+20    </style>
+21""", unsafe_allow_html=True)
 
 # Function to decode the complaint ID from the URL query parameters
 def decode_complaint_id_from_url():
