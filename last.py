@@ -4,16 +4,14 @@ import requests
 from textblob import TextBlob
 
 # Hide Streamlit icon, footer, and status widget
+
+# Hide Streamlit footer and image
 st.markdown("""
 <style>
+#MainMenu {visibility: hidden;}
+footer {visibility: hidden;}
 .css-18rr30y.egzxvld0 {
     display: none;
-}
-footer {
-    visibility: hidden;
-}
-[data-testid="stStatusWidget"] {
-    visibility: hidden;
 }
 </style>
 """, unsafe_allow_html=True)
