@@ -4,25 +4,24 @@ import requests
 from textblob import TextBlob
 
 st.set_page_config(page_title="Page Title", layout="wide")
-4
-5st.markdown("""
-6    <style>
-7        .reportview-container {
-8            margin-top: -2em;
-9        }
-10        #MainMenu {visibility: hidden;}
-11        .stDeployButton {display:none;}
-12        footer {visibility: hidden;}
-13        #stDecoration {display:none;}
-14        a[href^="https://github.com/streamlit/"][class^="stAppGotoGithubButton"] {
-15            display: none !important;
-16        }
-17        a[href^="https://streamlit.io"][class^="stAppGotoStreamlitButton"] {
-18            display: none !important;
-19        }
-20    </style>
-21""", unsafe_allow_html=True)
 
+st.markdown("""
+    <style>
+        .reportview-container {
+            margin-top: -2em;
+        }
+        #MainMenu {visibility: hidden;}
+        .stDeployButton {display:none;}
+        footer {visibility: hidden;}
+        #stDecoration {display:none;}
+        a[href^="https://github.com/streamlit/"][class^="stAppGotoGithubButton"] {
+            display: none !important;
+        }
+        a[href^="https://streamlit.io"][class^="stAppGotoStreamlitButton"] {
+            display: none !important;
+        }
+    </style>
+""", unsafe_allow_html=True)
 # Function to decode the complaint ID from the URL query parameters
 def decode_complaint_id_from_url():
     # Get query parameters from the URL
