@@ -3,6 +3,17 @@ import base64
 import requests
 from textblob import TextBlob
 
+
+
+# Hide Streamlit status widget
+st.markdown("""
+<style>
+[data-testid="stStatusWidget"] {
+    visibility: hidden;
+}
+</style>
+""", unsafe_allow_html=True)
+
 # Hide Streamlit icon and footer
 st.markdown("""
 <style>
