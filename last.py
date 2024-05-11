@@ -3,25 +3,14 @@ import base64
 import requests
 from textblob import TextBlob
 
-st.set_page_config(page_title="Page Title", layout="wide")
-
-st.markdown("""
-    <style>
-        .reportview-container {
-            margin-top: -2em;
-        }
-        #MainMenu {visibility: hidden;}
-        .stDeployButton {display:none;}
-        footer {visibility: hidden;}
-        #stDecoration {display:none;}
-        a[href^="https://github.com/streamlit/"][class^="stAppGotoGithubButton"] {
-            display: none !important;
-        }
-        a[href^="https://streamlit.io"][class^="stAppGotoStreamlitButton"] {
-            display: none !important;
-        }
-    </style>
-""", unsafe_allow_html=True)
+hide_streamlit_style = """
+            <style>
+            [data-testid="stToolbar"] {visibility: hidden !important;}
+            footer {visibility: hidden !important;}
+            header {visibility: hidden; display: none;}
+            </style>
+            """
+st.markdown(hide_streamlit_style, unsafe_allow_html=True)
 # Function to decode the complaint ID from the URL query parameters
 def decode_complaint_id_from_url():
     # Get query parameters from the URL
