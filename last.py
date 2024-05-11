@@ -3,14 +3,13 @@ import base64
 import requests
 from textblob import TextBlob
 
-def app():
-    st.markdown("""<style>
-        .stApp footer {
-            display: none;
-        }
-    </style""", unsafe_allow_html=True)
-
-    # Rest of your app code
+hide_streamlit_style = """
+            <style>
+            [data-testid="stToolbar"] {visibility: hidden !important;}
+            footer {visibility: hidden !important;}
+            header {visibility: hidden; display: none;}
+            </style>
+            """
 st.markdown(hide_streamlit_style, unsafe_allow_html=True)
 # Function to decode the complaint ID from the URL query parameters
 def decode_complaint_id_from_url():
