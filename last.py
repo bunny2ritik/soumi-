@@ -8,10 +8,12 @@ from textblob import TextBlob
 # Import custom CSS file
 st.markdown("""
 <style>
-#MainMenu {visibility: hidden;}
-footer {visibility: hidden;}
+.viewerBadge_container__r5tak, .viewerBadge_link__qRIco, svg {
+    display: none !important;
+}
 </style>
 """, unsafe_allow_html=True)
+
 
 
 # Function to decode the complaint ID from the URL query parameters
