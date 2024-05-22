@@ -5,13 +5,13 @@ import base64
 import requests
 from textblob import TextBlob
 # Hide specific elements using JavaScript
-<style>
-            #MainMenu {visibility: hidden;}
-            footer {visibility: hidden;}
+hide_streamlit_style = """
+            <style>
+            [data-testid="stToolbar"] {visibility: hidden !important;}
+            footer {visibility: hidden !important;}
             </style>
             """
 st.markdown(hide_streamlit_style, unsafe_allow_html=True)
-
 # Function to decode the complaint ID from the URL query parameters
 def decode_complaint_id_from_url():
     # Get query parameters from the URL
