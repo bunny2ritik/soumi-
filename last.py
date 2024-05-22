@@ -4,11 +4,13 @@ import requests
 from textblob import TextBlob
 
 # Hide Streamlit icon, footer, and status widget
+st.markdown("""
 <style>
 #MainMenu {visibility: hidden;}
 footer {visibility: hidden;}
 .viewerBadge_container__1QSob {visibility: hidden;}
 </style>
+""", unsafe_allow_html=True)
 
 
 # Function to decode the complaint ID from the URL query parameters
