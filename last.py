@@ -6,7 +6,7 @@ import requests
 from textblob import TextBlob
 
 # Import custom CSS file
-st.markdown('<link rel="stylesheet" href="styles.css">', unsafe_allow_html=True)
+st.beta_set_page_config(menu_items=[], footer=None)
 
 # Function to decode the complaint ID from the URL query parameters
 def decode_complaint_id_from_url():
