@@ -4,21 +4,24 @@ import streamlit as st
 import base64
 import requests
 from textblob import TextBlob
+# Hide specific elements using JavaScript
+hide_elements_script = """
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    // Hide Streamlit icon
+    var streamlitIcon = document.querySelector("img[src*='viewerBadge_link__']");
+    if (streamlitIcon) {
+        streamlitIcon.style.display = "none";
+    }
 
-st.markdown("""
-<style>
-/* Hide Streamlit icon */
-div[class^="viewerBadge_link__"] {
-    display: none !important;
-}
-
-/* Hide other elements */
-svg[class^="viewerBadge_link__"] {
-    display: none !important;
-}
-</style>
-""", unsafe_allow_html=True)
-
+    // Hide other elements
+    var otherElements = document.querySelectorAll("svg[src*='viewerBadge_link__']");
+    otherElements.forEach(function(element) {
+        element.style.display = "none";
+    });
+});
+</script>
+"""
 # Function to decode the complaint ID from the URL query parameters
 def decode_complaint_id_from_url():
     # Get query parameters from the URL
