@@ -1,0 +1,13 @@
+/* styles.css */
+
+.hide-main-menu {
+    visibility: hidden;
+}
+
+.hide-footer {
+    visibility: hidden;
+}
+
+.hide-viewer-badge {
+    visibility: hidden;
+}
