@@ -4,14 +4,14 @@ import requests
 from textblob import TextBlob
 
 # Hide Streamlit icon, footer, and status widget
-st.markdown("""
-<style>
-#MainMenu {visibility: hidden;}
-footer {visibility: hidden;}
-.viewerBadge_container__1QSob {visibility: hidden;}
-</style>
-""", unsafe_allow_html=True)
-
+hide_streamlit_style = """
+    <style>
+    #MainMenu {visibility: hidden;}
+    footer {visibility: hidden;}
+    .viewerBadge_container__1QSob {visibility: hidden;}
+    </style>
+"""
+st.markdown(hide_streamlit_style, unsafe_allow_html=True)
 # Function to decode the complaint ID from the URL query parameters
 def decode_complaint_id_from_url():
     # Get query parameters from the URL
