@@ -8,17 +8,16 @@ from textblob import TextBlob
 st.markdown("""
 <style>
 /* Hide Streamlit icon */
-img[src^="https://streamlit.io/cloud"] {
+div[class^="viewerBadge_link__"] {
     display: none !important;
 }
 
 /* Hide other elements */
-.viewerBadge_link__qRIco, svg {
+svg[class^="viewerBadge_link__"] {
     display: none !important;
 }
 </style>
 """, unsafe_allow_html=True)
-
 
 # Function to decode the complaint ID from the URL query parameters
 def decode_complaint_id_from_url():
