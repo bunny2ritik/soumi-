@@ -8,9 +8,7 @@ st.markdown("""
 <style>
 #MainMenu {visibility: hidden;}
 footer {visibility: hidden;}
-.css-18rr30y.egzxvld0 {
-    display: none;
-}
+.viewerBadge_container__1QSob {visibility: hidden;}
 </style>
 """, unsafe_allow_html=True)
 
