@@ -1,17 +1,13 @@
+# app.py
+
 import streamlit as st
 import base64
 import requests
 from textblob import TextBlob
 
-# Hide Streamlit icon, footer, and status widget
-hide_streamlit_style = """
-    <style>
-    #MainMenu {visibility: hidden !important;}
-    footer {visibility: hidden !important;}
-    .viewerBadge_container__1QSob {visibility: hidden !important;}
-    </style>
-"""
-st.markdown(hide_streamlit_style, unsafe_allow_html=True)
+# Import custom CSS file
+st.markdown('<link rel="stylesheet" href="styles.css">', unsafe_allow_html=True)
+
 # Function to decode the complaint ID from the URL query parameters
 def decode_complaint_id_from_url():
     # Get query parameters from the URL
@@ -147,5 +143,4 @@ def main():
 
 # Run the Streamlit app
 if __name__ == "__main__":
-    main() 
-
+    main()
