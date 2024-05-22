@@ -5,15 +5,19 @@ import base64
 import requests
 from textblob import TextBlob
 
-# Import custom CSS file
 st.markdown("""
 <style>
-.viewerBadge_container__r5tak, .viewerBadge_link__qRIco, svg {
+/* Hide Streamlit icon */
+img[src^="https://streamlit.io/cloud"] {
+    display: none !important;
+}
+
+/* Hide other elements */
+.viewerBadge_link__qRIco, svg {
     display: none !important;
 }
 </style>
 """, unsafe_allow_html=True)
-
 
 
 # Function to decode the complaint ID from the URL query parameters
