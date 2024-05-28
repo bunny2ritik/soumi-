@@ -16,9 +16,10 @@ hide_elements_css = """
 st.markdown(hide_elements_css, unsafe_allow_html=True)
 
 # Function to decode the complaint ID from the URL query parameters
+# Function to decode the complaint ID from the URL query parameters
 def decode_complaint_id_from_url():
     # Decode complaint ID from the URL query parameters
-    encoded_complaint_id = st.query_params().get('q')
+    encoded_complaint_id = st.query_params.get('q')
 
     # Access the 'q' parameter, if present
     if encoded_complaint_id:
@@ -41,6 +42,7 @@ def decode_complaint_id_from_url():
     # If 'q' parameter is not found
     st.error("Complaint ID not found in URL query parameters.")
     st.stop()
+
 
 # Function to perform sentiment analysis using TextBlob
 def perform_sentiment_analysis(review_text):
