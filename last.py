@@ -1,9 +1,8 @@
-# app.py
-
 import streamlit as st
 import base64
 import requests
 from textblob import TextBlob
+
 # Hide specific elements using JavaScript
 hide_elements_css = """
 <style>
@@ -21,17 +20,14 @@ hide_elements_css = """
 
 # Apply the CSS styles
 st.markdown(hide_elements_css, unsafe_allow_html=True)
+
 # Function to decode the complaint ID from the URL query parameters
 def decode_complaint_id_from_url():
-    # Get query parameters from the URL
-encoded_complaint_id = st.query_params().get('q')
-
+    # Decode complaint ID from the URL query parameters
+    encoded_complaint_id = st.query_params().get('q')
 
     # Access the 'q' parameter, if present
-    if 'q' in query_params:
-        # The 'q' parameter value is returned as a list, so we take the first element
-        encoded_complaint_id = query_params['q'][0]
-
+    if encoded_complaint_id:
         try:
             # Decode the base64-encoded string to obtain the original complaint ID
             decoded_bytes = base64.b64decode(encoded_complaint_id)
@@ -47,7 +43,7 @@ encoded_complaint_id = st.query_params().get('q')
             st.error(f"Error decoding complaint ID: {e}")
             return None
 
-    # If 'q' parameter is not found, or if there is an error decoding the ID
+    # If 'q' parameter is not found
     st.error("Complaint ID not found in URL query parameters.")
     return None
 
