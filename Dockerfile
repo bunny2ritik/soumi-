@@ -14,4 +14,4 @@ RUN pip install --no-cache-dir -r requirements.txt
 EXPOSE 8501
 
 # Run Streamlit when the container launches
-CMD ["streamlit", "run", "your_script.py"]
+CMD ["streamlit", "run", "last.py"]
