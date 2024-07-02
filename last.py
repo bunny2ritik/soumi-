@@ -105,6 +105,7 @@ def main():
     if 'tab' in query_params and query_params['tab'] == ['results']:
         if 'engineer_sentiment' in st.session_state and 'coordinator_sentiment' in st.session_state:
             st.success('Feedback submitted successfully!')
+            st.write('### Thank you for your valuable feedback!')
             st.write('### Sentiment Analysis Results:')
             st.write(f'- **Service Engineer Sentiment:** {st.session_state.engineer_sentiment}')
             st.write(f'- **Service Executive Coordinator Sentiment:** {st.session_state.coordinator_sentiment}')
