@@ -1,25 +1,24 @@
 import streamlit as st
 import base64
 import requests
-import time
 from textblob import TextBlob
 
 # Add custom CSS to hide Streamlit elements except the submit button
 hide_elements_style = """
-<style>
-#MainMenu {visibility: hidden;}
-footer {visibility: hidden;}
-div.stButton>button {
-    visibility: visible !important;
-}
-div.stDocument > div.stApp > div:nth-child(1) > div:nth-child(2) > div {
-    visibility: hidden;
-}
-a[href^="https://github.com/streamlit/"][class^="stAppGotoGithubButton"] {
-    display: none !important;
-}
-</style>
-"""
+            <style>
+            #MainMenu {visibility: hidden;}
+            footer {visibility: hidden;}
+            div.stButton>button {
+                visibility: visible !important;
+            }
+            div.stDocument > div.stApp > div:nth-child(1) > div:nth-child(2) > div {
+                visibility: hidden;
+            }
+            a[href^="https://github.com/streamlit/"][class^="stAppGotoGithubButton"] {
+                display: none !important;
+            }
+            </style>
+            """
 st.markdown(hide_elements_style, unsafe_allow_html=True) 
 
 # Function to decode the complaint ID from the URL query parameters
@@ -108,11 +107,13 @@ def main():
             st.session_state.feedback_submitted = False
         
         if st.session_state.feedback_submitted:
+            logo_image = "https://imagizer.imageshack.com/img924/4894/eqE4eh.png"
+            st.image(logo_image, use_column_width=True, width=400)
             st.success('Feedback submitted successfully!')
             st.write('### Thank you for your valuable feedback!')
-            st.write('### Redirecting to the next page...')
-            # Execute JavaScript to redirect after 1 second
-            st.markdown("<script>setTimeout(function() {window.location.href = '/?tab=results'}, 1000);</script>", unsafe_allow_html=True)
+            st.write('### Sentiment Analysis Results:')
+            st.write(f'- **Service Engineer Sentiment:** {st.session_state.engineer_sentiment}')
+            st.write(f'- **Service Executive Coordinator Sentiment:** {st.session_state.coordinator_sentiment}')
         else:
             engineer_review, coordinator_review = style_feedback_form(complaint_id_decoded)
             submit_button = st.button('Submit')
@@ -122,6 +123,7 @@ def main():
                     st.session_state.feedback_submitted = True
                     st.session_state.engineer_sentiment = engineer_sentiment
                     st.session_state.coordinator_sentiment = coordinator_sentiment
+                    st.experimental_rerun()
                 else:
                     st.error('Failed to submit feedback. Please try again later.')
     else:
