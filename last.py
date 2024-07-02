@@ -97,12 +97,9 @@ def submit_feedback(complaint_id, engineer_review, coordinator_review):
     response = requests.post(api_url, json=feedback_data)
 
     if response.status_code == 200:
-        st.success('Feedback submitted successfully!')
-        st.write('### Sentiment Analysis Results:')
-        st.write(f'- **Service Engineer Sentiment:** {engineer_sentiment}')
-        st.write(f'- **Service Executive Coordinator Sentiment:** {coordinator_sentiment}')
+        return True, engineer_sentiment, coordinator_sentiment
     else:
-        st.error('Failed to submit feedback. Please try again later.')
+        return False, None, None
 
 # Style and layout of the feedback form
 def style_feedback_form(complaint_id):
@@ -124,12 +121,35 @@ def main():
     complaint_id_decoded = decode_complaint_id_from_url()
 
     if complaint_id_decoded:
-        engineer_review, coordinator_review = style_feedback_form(complaint_id_decoded)
+        feedback_submitted = False
+        if 'feedback_submitted' in st.session_state:
+            feedback_submitted = st.session_state.feedback_submitted
         
-        submit_button = st.button('Submit')
+        if not feedback_submitted:
+            engineer_review, coordinator_review = style_feedback_form(complaint_id_decoded)
+            
+            submit_button = st.button('Submit')
 
-        if submit_button:
-            submit_feedback(complaint_id_decoded, engineer_review, coordinator_review)
+            if submit_button:
+                success, engineer_sentiment, coordinator_sentiment = submit_feedback(complaint_id_decoded, engineer_review, coordinator_review)
+                if success:
+                    st.session_state.feedback_submitted = True
+                    st.session_state.engineer_sentiment = engineer_sentiment
+                    st.session_state.coordinator_sentiment = coordinator_sentiment
+                    st.experimental_set_query_params(tab='results')
+                    st.experimental_rerun()
+                else:
+                    st.error('Failed to submit feedback. Please try again later.')
+        else:
+            st.experimental_set_query_params(tab='results')
+            st.experimental_rerun()
+    else:
+        query_params = st.experimental_get_query_params()
+        if query_params.get('tab') == ['results']:
+            st.success('Feedback submitted successfully!')
+            st.write('### Sentiment Analysis Results:')
+            st.write(f'- **Service Engineer Sentiment:** {st.session_state.engineer_sentiment}')
+            st.write(f'- **Service Executive Coordinator Sentiment:** {st.session_state.coordinator_sentiment}')
 
 if __name__ == "__main__":
     main()
