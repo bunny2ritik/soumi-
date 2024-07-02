@@ -101,19 +101,18 @@ def style_feedback_form(complaint_id):
 
 # Main application code
 def main():
+    query_params = st.experimental_get_query_params()
     complaint_id_decoded = decode_complaint_id_from_url()
     if complaint_id_decoded:
-        if 'feedback_submitted' not in st.session_state:
-            st.session_state.feedback_submitted = False
+        feedback_submitted = False
+        if 'feedback_submitted' in st.session_state:
+            feedback_submitted = st.session_state.feedback_submitted
         
-        if st.session_state.feedback_submitted:
-            logo_image = "https://imagizer.imageshack.com/img924/4894/eqE4eh.png"
-            st.image(logo_image, use_column_width=True, width=400)
+        if feedback_submitted:
             st.success('Feedback submitted successfully!')
             st.write('### Thank you for your valuable feedback!')
-            st.write('### Sentiment Analysis Results:')
-            st.write(f'- **Service Engineer Sentiment:** {st.session_state.engineer_sentiment}')
-            st.write(f'- **Service Executive Coordinator Sentiment:** {st.session_state.coordinator_sentiment}')
+            st.experimental_set_query_params(tab='results')
+            st.experimental_rerun()
         else:
             engineer_review, coordinator_review = style_feedback_form(complaint_id_decoded)
             submit_button = st.button('Submit')
@@ -123,11 +122,20 @@ def main():
                     st.session_state.feedback_submitted = True
                     st.session_state.engineer_sentiment = engineer_sentiment
                     st.session_state.coordinator_sentiment = coordinator_sentiment
+                    st.experimental_set_query_params(tab='results')
                     st.experimental_rerun()
                 else:
                     st.error('Failed to submit feedback. Please try again later.')
     else:
         st.error("Complaint ID not found in URL query parameters.")
+
+    if 'tab' in query_params and query_params['tab'] == ['results']:
+        if 'engineer_sentiment' in st.session_state and 'coordinator_sentiment' in st.session_state:
+            st.write('### Sentiment Analysis Results:')
+            st.write(f'- **Service Engineer Sentiment:** {st.session_state.engineer_sentiment}')
+            st.write(f'- **Service Executive Coordinator Sentiment:** {st.session_state.coordinator_sentiment}')
+        else:
+            st.error('No feedback data available.')
 
 if __name__ == "__main__":
     main()
