@@ -3,35 +3,6 @@ import base64
 import requests
 from textblob import TextBlob
 
-# Hide Streamlit toolbar and viewer badge using CSS
-hide_elements_css = """
-<style>
-[data-testid="stToolbar"], [data-testid="stText"] div:first-child {
-    visibility: hidden !important;
-}
-</style>
-"""
-
-# Apply the CSS styles
-st.markdown(hide_elements_css, unsafe_allow_html=True)
-# Updated CSS to hide Streamlit viewer badge
-
-
-hide_elements_css = """
-<style>
-.viewerBadge_link__qRIco {
-    display: none !important;
-}
-</style>
-"""
-
-# Apply the CSS styles
-st.markdown(hide_elements_css, unsafe_allow_html=True)
-
-# Your Streamlit app code continues below...
-
-
-# Function to decode the complaint ID from the URL query parameters
 # Function to decode the complaint ID from the URL query parameters
 def decode_complaint_id_from_url():
     # Decode complaint ID from the URL query parameters
@@ -92,7 +63,7 @@ def submit_feedback(complaint_id, engineer_review, coordinator_review):
 
     # API data to submit feedback
     feedback_data = {
-        'apiKey': 'RnVqaXlhbWEgUG93ZXIgU3lzdGVtcyBQdnQuIEx0ZC4=.$2y$10$sd9eji2d1mc8i1nd1xsalefYiroiLa46/X0U9ihoGeOU7FaWDg30a.',
+        'apiKey': 'Your_API_Key_Here',  # Replace with your actual API key
         'complaint_id': complaint_id,
         'engineer_feedback': {
             'feedback': engineer_review,
@@ -150,6 +121,16 @@ def style_feedback_form(complaint_id):
 def main():
     # Decode complaint ID from the URL query parameters
     complaint_id_decoded = decode_complaint_id_from_url()
+
+    # Hide Streamlit viewer badge using CSS targeting the SVG directly
+    hide_viewer_badge_css = """
+    <style>
+    .viewerBadge_link__qRIco svg {
+        display: none !important;
+    }
+    </style>
+    """
+    st.markdown(hide_viewer_badge_css, unsafe_allow_html=True)
 
     # Style the feedback form
     engineer_review, coordinator_review = style_feedback_form(complaint_id_decoded)
