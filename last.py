@@ -3,52 +3,46 @@ import base64
 import requests
 from textblob import TextBlob
 
-# Add custom CSS to hide Streamlit elements except the submit button
-hide_elements_style = """
-            <style>
-            #MainMenu {visibility: hidden;}
-            footer {visibility: hidden;}
-            div.stButton>button {
-                visibility: visible !important;
-            }
-            div.stDocument > div.stApp > div:nth-child(1) > div:nth-child(2) > div {
-                visibility: hidden;
-            }
-            a[href^="https://github.com/streamlit/"][class^="stAppGotoGithubButton"] {
-                display: none !important;
-            }
-            </style>
-            """
-st.markdown(hide_elements_style, unsafe_allow_html=True) 
+# Hide Streamlit toolbar and viewer badge using CSS
+hide_elements_css = """
+<style>
+[data-testid="stToolbar"], [data-testid="stText"] div:first-child {
+    visibility: hidden !important;
+}
+</style>
+"""
+
+# Apply the CSS styles
+st.markdown(hide_elements_css, unsafe_allow_html=True)
 
 # Function to decode the complaint ID from the URL query parameters
+# Function to decode the complaint ID from the URL query parameters
 def decode_complaint_id_from_url():
-    # Get query parameters from the URL
-    query_params = st.experimental_get_query_params()
+    # Decode complaint ID from the URL query parameters
+    encoded_complaint_id = st.query_params.get('q')
 
     # Access the 'q' parameter, if present
-    if 'q' in query_params:
-        # The 'q' parameter value is returned as a list, so we take the first element
-        encoded_complaint_id = query_params['q'][0]
-
+    if encoded_complaint_id:
         try:
             # Decode the base64-encoded string to obtain the original complaint ID
-            decoded_bytes = base64.b64decode(encoded_complaint_id)
-            complaint_id = decoded_bytes.decode('utf-8')
+            decoded_bytes = base64.b64decode(encoded_complaint_id.encode()).decode('utf-8')
 
             # Extract only the complaint ID value without the parameter name
-            if complaint_id.startswith('complaintId='):
-                complaint_id = complaint_id.replace('complaintId=', '')
+            if decoded_bytes.startswith('complaintId='):
+                complaint_id = decoded_bytes.replace('complaintId=', '')
+            else:
+                complaint_id = decoded_bytes
 
             return complaint_id
 
         except Exception as e:
-            st.error(f"Error decoding complaint ID: {e}")
-            return None
+            st.error("Error decoding complaint ID. Please check the URL.")
+            st.stop()
 
-    # If 'q' parameter is not found, or if there is an error decoding the ID
+    # If 'q' parameter is not found
     st.error("Complaint ID not found in URL query parameters.")
-    return None
+    st.stop()
+
 
 # Function to perform sentiment analysis using TextBlob
 def perform_sentiment_analysis(review_text):
@@ -67,14 +61,8 @@ def perform_sentiment_analysis(review_text):
 
 # Function to derive ratings from sentiment categories
 def derive_rating(sentiment_category):
-    if sentiment_category == 'Very Bad':
-        return 1.0
-    elif sentiment_category == 'Bad':
-        return 2.5
-    elif sentiment_category == 'Good':
-        return 4.0
-    else:  # 'Excellent'
-        return 5.0
+    ratings = {'Very Bad': 1.0, 'Bad': 2.5, 'Good': 4.0, 'Excellent': 5.0}
+    return ratings.get(sentiment_category, 0.0)
 
 # Function to submit feedback and handle API request
 def submit_feedback(complaint_id, engineer_review, coordinator_review):
@@ -106,17 +94,22 @@ def submit_feedback(complaint_id, engineer_review, coordinator_review):
     api_url = 'https://tracker.utlsolar.net/tracker/production/public/utlmtlapis/getCustomerFeedback'
 
     # Send POST request to the API
-    response = requests.post(api_url, json=feedback_data)
+    try:
+        response = requests.post(api_url, json=feedback_data)
+        response.raise_for_status()  # Raise error for non-200 status codes
 
-    # Check response and provide feedback to user
-    if response.status_code == 200:
-        st.success('Feedback submitted successfully!')
-        # Show sentiment analysis results
-        st.write('### Sentiment Analysis Results:')
-        st.write(f'- **Service Engineer Sentiment:** {engineer_sentiment}')
-        st.write(f'- **Service Executive Coordinator Sentiment:** {coordinator_sentiment}')
-    else:
-        st.error('Failed to submit feedback. Please try again later.')
+        # Check response and provide feedback to user
+        if response.status_code == 200:
+            st.success('Feedback submitted successfully!')
+            # Show sentiment analysis results
+            st.write('### Sentiment Analysis Results:')
+            st.write(f'- **Service Engineer Sentiment:** {engineer_sentiment}')
+            st.write(f'- **Service Executive Coordinator Sentiment:** {coordinator_sentiment}')
+        else:
+            st.error('Failed to submit feedback. Please try again later.')
+    
+    except requests.exceptions.RequestException as e:
+        st.error(f'Error submitting feedback: {e}')
 
 # Style and layout of the feedback form
 def style_feedback_form(complaint_id):
@@ -142,17 +135,15 @@ def main():
     # Decode complaint ID from the URL query parameters
     complaint_id_decoded = decode_complaint_id_from_url()
 
-    # Ensure complaint_id_decoded is not None before proceeding
-    if complaint_id_decoded:
-        # Style the feedback form
-        engineer_review, coordinator_review = style_feedback_form(complaint_id_decoded)
-        
-        # Add a submit button
-        submit_button = st.button('Submit')
+    # Style the feedback form
+    engineer_review, coordinator_review = style_feedback_form(complaint_id_decoded)
+    
+    # Add a submit button
+    submit_button = st.button('Submit')
 
-        # If the submit button is clicked, handle the submission
-        if submit_button:
-            submit_feedback(complaint_id_decoded, engineer_review, coordinator_review)
+    # If the submit button is clicked, handle the submission
+    if submit_button:
+        submit_feedback(complaint_id_decoded, engineer_review, coordinator_review)
 
 # Run the Streamlit app
 if __name__ == "__main__":
