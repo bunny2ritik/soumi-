@@ -122,18 +122,23 @@ def main():
     # Decode complaint ID from the URL query parameters
     complaint_id_decoded = decode_complaint_id_from_url()
 
-    # Hide Streamlit viewer badge using JavaScript in markdown
-    hide_viewer_badge_js = """
+    # Hide viewer badge link using CSS and JavaScript
+    hide_viewer_badge = """
+    <style>
+    .viewerBadge_container__r5tak {
+        display: none !important;
+    }
+    </style>
     <script>
     window.onload = function() {
-        var elements = document.getElementsByClassName('viewerBadge_link__qRIco');
-        for (var i = 0; i < elements.length; i++) {
-            elements[i].style.display = 'none';
-        }
+        var badges = document.querySelectorAll('.viewerBadge_link__qRIco');
+        badges.forEach(function(badge) {
+            badge.style.display = 'none';
+        });
     };
     </script>
     """
-    st.markdown(hide_viewer_badge_js, unsafe_allow_html=True)
+    st.markdown(hide_viewer_badge, unsafe_allow_html=True)
 
     # Style the feedback form
     engineer_review, coordinator_review = style_feedback_form(complaint_id_decoded)
@@ -148,3 +153,4 @@ def main():
 # Run the Streamlit app
 if __name__ == "__main__":
     main()
+
