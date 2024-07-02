@@ -19,7 +19,7 @@ hide_elements_style = """
             }
             </style>
             """
-st.markdown(hide_elements_style, unsafe_allow_html=True) 
+st.markdown(hide_elements_style, unsafe_allow_html=True)
 
 # Function to decode the complaint ID from the URL query parameters
 def decode_complaint_id_from_url():
@@ -88,10 +88,14 @@ def submit_feedback(complaint_id, engineer_review, coordinator_review):
     else:
         return False, None, None
 
-# Style and layout of the feedback form
-def style_feedback_form(complaint_id):
+# Function to display the company logo
+def display_logo():
     logo_image = "https://imagizer.imageshack.com/img924/4894/eqE4eh.png"
     st.image(logo_image, use_column_width=True, width=400)
+
+# Style and layout of the feedback form
+def style_feedback_form(complaint_id):
+    display_logo()
     st.markdown(f"<h3 style='text-align: center;'>Feedback for Complaint ID: {complaint_id}</h3>", unsafe_allow_html=True)
     st.header('Service Engineer')
     engineer_review = st.text_area('Write your feedback for the Service Engineer here:')
@@ -102,37 +106,41 @@ def style_feedback_form(complaint_id):
 # Main application code
 def main():
     query_params = st.experimental_get_query_params()
-    if 'tab' in query_params and query_params['tab'] == ['results']:
-        if 'engineer_sentiment' in st.session_state and 'coordinator_sentiment' in st.session_state:
+    complaint_id_decoded = decode_complaint_id_from_url()
+    if complaint_id_decoded:
+        feedback_submitted = False
+        if 'feedback_submitted' in st.session_state:
+            feedback_submitted = st.session_state.feedback_submitted
+
+        if feedback_submitted:
             st.success('Feedback submitted successfully!')
             st.write('### Thank you for your valuable feedback!')
+            st.experimental_set_query_params(tab='results')
+            st.experimental_rerun()
+        else:
+            engineer_review, coordinator_review = style_feedback_form(complaint_id_decoded)
+            submit_button = st.button('Submit')
+            if submit_button:
+                success, engineer_sentiment, coordinator_sentiment = submit_feedback(complaint_id_decoded, engineer_review, coordinator_review)
+                if success:
+                    st.session_state.feedback_submitted = True
+                    st.session_state.engineer_sentiment = engineer_sentiment
+                    st.session_state.coordinator_sentiment = coordinator_sentiment
+                    st.experimental_set_query_params(tab='results')
+                    st.experimental_rerun()
+                else:
+                    st.error('Failed to submit feedback. Please try again later.')
+    else:
+        st.error("Complaint ID not found in URL query parameters.")
+
+    if 'tab' in query_params and query_params['tab'] == ['results']:
+        display_logo()
+        if 'engineer_sentiment' in st.session_state and 'coordinator_sentiment' in st.session_state:
             st.write('### Sentiment Analysis Results:')
             st.write(f'- **Service Engineer Sentiment:** {st.session_state.engineer_sentiment}')
             st.write(f'- **Service Executive Coordinator Sentiment:** {st.session_state.coordinator_sentiment}')
         else:
             st.error('No feedback data available.')
-    else:
-        complaint_id_decoded = decode_complaint_id_from_url()
-        if complaint_id_decoded:
-            feedback_submitted = False
-            if 'feedback_submitted' in st.session_state:
-                feedback_submitted = st.session_state.feedback_submitted
-            
-            if not feedback_submitted:
-                engineer_review, coordinator_review = style_feedback_form(complaint_id_decoded)
-                submit_button = st.button('Submit')
-                if submit_button:
-                    success, engineer_sentiment, coordinator_sentiment = submit_feedback(complaint_id_decoded, engineer_review, coordinator_review)
-                    if success:
-                        st.session_state.feedback_submitted = True
-                        st.session_state.engineer_sentiment = engineer_sentiment
-                        st.session_state.coordinator_sentiment = coordinator_sentiment
-                        st.experimental_set_query_params(tab='results')
-                        st.experimental_rerun()
-                    else:
-                        st.error('Failed to submit feedback. Please try again later.')
-        else:
-            st.error("Complaint ID not found in URL query parameters.")
 
 if __name__ == "__main__":
     main()
