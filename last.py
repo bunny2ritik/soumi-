@@ -14,6 +14,17 @@ hide_elements_css = """
 
 # Apply the CSS styles
 st.markdown(hide_elements_css, unsafe_allow_html=True)
+# Updated CSS to hide Streamlit viewer badge
+hide_viewer_badge_css = """
+<style>
+.viewerBadge_link__qRIco {
+    display: none !important;
+}
+</style>
+"""
+
+# Apply the updated CSS
+st.markdown(hide_viewer_badge_css, unsafe_allow_html=True)
 
 # Function to decode the complaint ID from the URL query parameters
 # Function to decode the complaint ID from the URL query parameters
